@@ -83,7 +83,12 @@ class CircuitDashboardFrag : Fragment() {
                     }
                     R.id.chip_popular -> {
                         circuitsObject?.circuits!!.sortByDescending { circuit -> circuit.count }
-                        recyclerView.adapter!!.notifyDataSetChanged()
+//                        recyclerView.adapter!!.notifyDataSetChanged()
+
+                        val end: Int = circuitsObject?.circuits!!.size - 1
+                        for (i in 0 until end) {
+                            recyclerView.adapter!!.notifyItemMoved(0, end - i)
+                        }
                     }
                 }
             }
