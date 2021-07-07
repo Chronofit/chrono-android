@@ -78,7 +78,6 @@ class Chronometer @JvmOverloads constructor(
         }
     }
 
-
     fun stop() {
         stopTime = SystemClock.elapsedRealtime()
         running = false
