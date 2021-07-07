@@ -12,13 +12,13 @@ import ca.chronofit.chrono.R
 import ca.chronofit.chrono.util.objects.CircuitObject
 import com.google.android.material.textview.MaterialTextView
 
-class ChapterItemAdapter(
+class CircuitItemAdapter(
     private val data: List<CircuitObject>,
-    private val clickListener: (CircuitObject) -> Unit,
+    private val clickListener: (CircuitObject, Int) -> Unit,
     private val menuClickListener: (Int) -> Unit,
     private val context: Context
 ) :
-    RecyclerView.Adapter<ChapterItemAdapter.CircuitViewHolder>() {
+    RecyclerView.Adapter<CircuitItemAdapter.CircuitViewHolder>() {
 
     class CircuitViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val name: MaterialTextView = itemView.findViewById(R.id.circuit_name)
@@ -31,7 +31,7 @@ class ChapterItemAdapter(
         @SuppressLint("SetTextI18n")
         fun bind(
             circuit: CircuitObject,
-            clickListener: (CircuitObject) -> Unit,
+            clickListener: (CircuitObject, Int) -> Unit,
             onMenuClickListener: (Int) -> Unit,
             position: Int,
             context: Context
@@ -56,7 +56,7 @@ class ChapterItemAdapter(
                 )
             )
             icons.recycle()
-            itemView.setOnClickListener { clickListener(circuit) }
+            itemView.setOnClickListener { clickListener(circuit, position) }
             more.setOnClickListener { onMenuClickListener(position) }
         }
     }
