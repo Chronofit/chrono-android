@@ -19,7 +19,7 @@ import ca.chronofit.chrono.databinding.DialogAlertBinding
 import ca.chronofit.chrono.databinding.FragmentCircuitDashboardBinding
 import ca.chronofit.chrono.databinding.FragmentDashboardBottomSheetBinding
 import ca.chronofit.chrono.util.BaseActivity
-import ca.chronofit.chrono.util.adapters.ChapterItemAdapter
+import ca.chronofit.chrono.util.adapters.CircuitItemAdapter
 import ca.chronofit.chrono.util.constants.Constants
 import ca.chronofit.chrono.util.constants.Events
 import ca.chronofit.chrono.util.objects.CircuitObject
@@ -66,20 +66,26 @@ class CircuitDashboardFrag : Fragment() {
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
-        bind.sortChips.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.chip_alphabetical -> {
-                    circuitsObject?.circuits!!.sortBy { circuit -> circuit.name }
-                    recyclerView.adapter!!.notifyItemRangeChanged(
-                        0,
-                        circuitsObject?.circuits!!.size
-                    )
-                }
-                R.id.chip_date -> {
-
-                }
-                R.id.chip_popular -> {
-
+        bind.sortChips.apply {
+            setOnCheckedChangeListener { group, checkedId ->
+                when (checkedId) {
+                    R.id.chip_alphabetical -> {
+                        circuitsObject?.circuits!!.sortBy { circuit -> circuit.name }
+//                        recyclerView.adapter!!.notifyItemRangeChanged(
+//                            0,
+//                            circuitsObject?.circuits!!.size
+//                        )
+                        recyclerView.adapter!!.notifyDataSetChanged()
+                    }
+                    R.id.chip_date -> {
+                        circuitsObject?.circuits!!.sortBy { circuit -> circuit.date }
+                        circuitsObject?.circuits!!.reverse()
+                        recyclerView.adapter!!.notifyDataSetChanged()
+                    }
+                    R.id.chip_popular -> {
+                        circuitsObject?.circuits!!.sortBy { circuit -> circuit.count }
+                        recyclerView.adapter!!.notifyDataSetChanged()
+                    }
                 }
             }
         }
@@ -155,6 +161,8 @@ class CircuitDashboardFrag : Fragment() {
         intent.putExtra("lastRest", lastRest)
         intent.putExtra("soundEffect", soundEffect)
         startActivityForResult(intent, Constants.DASH_TO_TIMER)
+//        circuitsObject?.circuits!![position].count =
+//            circuitsObject?.circuits!![position].count?.plus(1)
     }
 
     private val itemTouchHelperCallback = object : ItemTouchHelper.Callback() {
@@ -312,7 +320,7 @@ class CircuitDashboardFrag : Fragment() {
             bind.recyclerView.visibility = View.VISIBLE
             bind.emptyLayout.visibility = View.GONE
 
-            recyclerView.adapter = ChapterItemAdapter(
+            recyclerView.adapter = CircuitItemAdapter(
                 circuitsObject?.circuits!!,
                 { circuitObject: CircuitObject -> circuitClicked(circuitObject) },
                 { position: Int -> showMoreMenu(position) }, requireContext()
