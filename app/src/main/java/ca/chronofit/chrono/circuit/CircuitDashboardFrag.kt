@@ -67,7 +67,7 @@ class CircuitDashboardFrag : Fragment() {
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
         bind.sortChips.apply {
-            setOnCheckedChangeListener { group, checkedId ->
+            setOnCheckedChangeListener { _, checkedId ->
                 when (checkedId) {
                     R.id.chip_alphabetical -> {
                         circuitsObject?.circuits!!.sortBy { circuit -> circuit.name }
@@ -78,12 +78,11 @@ class CircuitDashboardFrag : Fragment() {
                         recyclerView.adapter!!.notifyDataSetChanged()
                     }
                     R.id.chip_date -> {
-                        circuitsObject?.circuits!!.sortBy { circuit -> circuit.date }
-                        circuitsObject?.circuits!!.reverse()
+                        circuitsObject?.circuits!!.sortByDescending { circuit -> circuit.date }
                         recyclerView.adapter!!.notifyDataSetChanged()
                     }
                     R.id.chip_popular -> {
-                        circuitsObject?.circuits!!.sortBy { circuit -> circuit.count }
+                        circuitsObject?.circuits!!.sortByDescending { circuit -> circuit.count }
                         recyclerView.adapter!!.notifyDataSetChanged()
                     }
                 }
@@ -161,8 +160,16 @@ class CircuitDashboardFrag : Fragment() {
         intent.putExtra("lastRest", lastRest)
         intent.putExtra("soundEffect", soundEffect)
         startActivityForResult(intent, Constants.DASH_TO_TIMER)
-//        circuitsObject?.circuits!![position].count =
-//            circuitsObject?.circuits!![position].count?.plus(1)
+
+        val index = circuitsObject?.circuits!!.indexOf(circuit)
+        val currCount = circuitsObject?.circuits!![index].count
+        if (currCount != null) {
+            circuitsObject?.circuits!![index].count = currCount + 1
+        } else {
+            circuitsObject?.circuits!![index].count = 0
+        }
+        PreferenceManager.put(circuitsObject, Constants.CIRCUITS)
+        recyclerView.adapter?.notifyDataSetChanged()
     }
 
     private val itemTouchHelperCallback = object : ItemTouchHelper.Callback() {
