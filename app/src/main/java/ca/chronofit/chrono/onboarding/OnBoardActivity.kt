@@ -14,6 +14,7 @@ import ca.chronofit.chrono.MainActivity
 import ca.chronofit.chrono.R
 import ca.chronofit.chrono.databinding.ActivityOnboardBinding
 import ca.chronofit.chrono.util.BaseActivity
+import org.json.JSONObject
 
 class OnBoardActivity : BaseActivity() {
     private lateinit var bind: ActivityOnboardBinding
@@ -76,10 +77,27 @@ class OnBoardActivity : BaseActivity() {
         })
 
         bind.next.setOnClickListener { nextPage() }
-        bind.skip.setOnClickListener { skip() }
-        bind.continueButton.setOnClickListener { launchMain() }
+        bind.skip.setOnClickListener {
+            val props = JSONObject()
+            props.put("source", "OnBoardActivity")
+            props.put("skipped_at_page", bind.pager.currentItem)
+
+            mixpanelAPI.track("On-boarding skipped", props)
+            skip()
+        }
+        bind.continueButton.setOnClickListener {
+            val props = JSONObject()
+            props.put("source", "OnBoardActivity")
+            mixpanelAPI.track("Finished On-boarding", props)
+
+            launchMain()
+        }
 
         bind.discordButton.setOnClickListener {
+            val props = JSONObject()
+            props.put("source", "OnBoardActivity")
+
+            mixpanelAPI.track("Discord accessed", props)
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,

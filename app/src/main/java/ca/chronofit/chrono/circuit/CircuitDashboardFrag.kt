@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import ca.chronofit.chrono.MainActivity
 import ca.chronofit.chrono.R
 import ca.chronofit.chrono.databinding.DialogAlertBinding
 import ca.chronofit.chrono.databinding.FragmentCircuitDashboardBinding
@@ -34,6 +35,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.gson.GsonBuilder
+import org.json.JSONObject
 
 class CircuitDashboardFrag : Fragment() {
     private lateinit var bind: FragmentCircuitDashboardBinding
@@ -113,13 +115,21 @@ class CircuitDashboardFrag : Fragment() {
                 Constants.NUM_COMPLETE
             )!! >= remoteConfig.getString(Constants.CONFIG_REVIEW_THRESHOLD).toInt())
         ) {
+            val props = JSONObject()
+            props.put("source", "CircuitDashboardActivity")
+            (activity as MainActivity).mixpanel.track("Review pop-up presented", props)
+
             val manager = ReviewManagerFactory.create(requireContext())
             val request = manager.requestReviewFlow()
             request.addOnCompleteListener { request ->
                 if (request.isSuccessful) {
+                    val props = JSONObject()
                     val reviewInfo = request.result
                     val flow = manager.launchReviewFlow(requireActivity(), reviewInfo)
                     flow.addOnCompleteListener {
+                        props.put("source", "CircuitDashboardActivity")
+                        (activity as MainActivity).mixpanel.track("App reviewed", props)
+
                         Toast.makeText(
                             requireContext(),
                             "Thank you for the review. Your feedback is appreciated!",
@@ -212,6 +222,16 @@ class CircuitDashboardFrag : Fragment() {
         }
 
         fragBinding.shareLayout.setOnClickListener {
+            val props = JSONObject()
+            props.put("source", "CircuitDashboardActivity")
+            props.put("name",  circuitsObject!!.circuits?.get(position)!!.name)
+            props.put("sets",  circuitsObject!!.circuits?.get(position)!!.sets)
+            props.put("work",  circuitsObject!!.circuits?.get(position)!!.work)
+            props.put("rest",  circuitsObject!!.circuits?.get(position)!!.rest)
+            props.put("iconID",  circuitsObject!!.circuits?.get(position)!!.iconId)
+
+            (activity as MainActivity).mixpanel.track("Circuit Shared", props)
+
             val sendIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
                 putExtra(
