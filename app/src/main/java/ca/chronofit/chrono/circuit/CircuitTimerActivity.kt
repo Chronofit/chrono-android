@@ -30,6 +30,7 @@ import ca.chronofit.chrono.util.objects.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.GsonBuilder
+import org.json.JSONObject
 import java.math.BigDecimal
 import kotlin.math.roundToInt
 
@@ -210,6 +211,16 @@ class CircuitTimerActivity : BaseActivity() {
                 isDone()
             }, celebrateTimeout
         )
+
+        val props = JSONObject()
+        props.put("source", "CircuitTimerActivity")
+        props.put("name", circuit.name)
+        props.put("sets", circuit.sets)
+        props.put("work", circuit.work)
+        props.put("rest", circuit.rest)
+        props.put("iconID", circuit.iconId)
+
+        mixpanelAPI.track("Circuit Completed", props)
     }
 
     private fun isDone() {
@@ -291,6 +302,16 @@ class CircuitTimerActivity : BaseActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         loadTimer(circuit)
         getReady()
+
+        val props = JSONObject()
+        props.put("source", "CircuitCreateActivity")
+        props.put("name", circuit.name)
+        props.put("sets", circuit.sets)
+        props.put("work", circuit.work)
+        props.put("rest", circuit.rest)
+        props.put("iconID", circuit.iconId)
+
+        mixpanelAPI.track("Circuit started", props)
     }
 
     private fun resume() {

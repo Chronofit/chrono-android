@@ -26,6 +26,7 @@ import ca.chronofit.chrono.util.objects.CircuitsObject
 import ca.chronofit.chrono.util.objects.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
+import org.json.JSONObject
 
 class CircuitCreateActivity : BaseActivity() {
     private lateinit var bind: ActivityCircuitCreateBinding
@@ -162,6 +163,17 @@ class CircuitCreateActivity : BaseActivity() {
         }
         PreferenceManager.put(circuits, Constants.CIRCUITS)
         setResult(Activity.RESULT_OK)
+
+        val props = JSONObject()
+        props.put("source", "CircuitCreateActivity")
+        props.put("name", circuit.name)
+        props.put("sets", circuit.sets)
+        props.put("work", circuit.work)
+        props.put("rest", circuit.rest)
+        props.put("iconID", circuit.iconId)
+
+        mixpanelAPI.track("Circuit created", props)
+
         finish()
     }
 

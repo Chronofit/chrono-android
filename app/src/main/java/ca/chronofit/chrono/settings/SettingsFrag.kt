@@ -29,6 +29,7 @@ import ca.chronofit.chrono.util.objects.PreferenceManager
 import ca.chronofit.chrono.util.objects.SettingsViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.switchmaterial.SwitchMaterial
+import org.json.JSONObject
 
 class SettingsFrag : Fragment() {
     private lateinit var bind: FragmentSettingsBinding
@@ -126,6 +127,11 @@ class SettingsFrag : Fragment() {
         // Notification Switch
         bind.notificationSwitch.setOnCheckedChangeListener { _, isChecked ->
             switchLogic(isChecked, bind.notificationSwitch)
+            val props = JSONObject()
+            props.put("source", "SettingsFrag")
+            props.put("isChecked", isChecked)
+            (activity as MainActivity).mixpanel.track("Notification setting toggled", props)
+
             settingsViewModel.onNotificationChanged(isChecked)
             PreferenceManager.put(isChecked, Constants.NOTIFICATION_SETTING)
         }
@@ -176,6 +182,10 @@ class SettingsFrag : Fragment() {
 
         // Rate App Launch
         bind.rateApp.setOnClickListener {
+            val props = JSONObject()
+            props.put("source", "SettingsFrag")
+            (activity as MainActivity).mixpanel.track("Rate app initiated", props)
+
             val packageName = requireContext().packageName
             try {
                 startActivity(
@@ -195,6 +205,10 @@ class SettingsFrag : Fragment() {
         }
 
         bind.joinDiscord.setOnClickListener {
+            val props = JSONObject()
+            props.put("source", "SettingsFrag")
+            (activity as MainActivity).mixpanel.track("Discord accessed", props)
+
             val intent =
                 Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.discord_invite_link)))
             startActivity(intent)
@@ -226,6 +240,10 @@ class SettingsFrag : Fragment() {
 
         bind.settingsHeader.setOnClickListener {
             if (isEasterEgg) {
+                val props = JSONObject()
+                props.put("source", "Settings Frag")
+                (activity as MainActivity).mixpanel.track("Easter egg discovered", props)
+
                 startActivity(Intent(requireContext(), StatsActivity::class.java))
             }
         }
@@ -329,10 +347,16 @@ class SettingsFrag : Fragment() {
             val radioButton = group.findViewById<RadioButton>(checkedId)
             bind.readyTimeDisplay.text = radioButton.text
 
+            val props = JSONObject()
+            props.put("source", "SettingsFrag")
+            props.put("time selected", radioButton.text)
+            (activity as MainActivity).mixpanel.track("Ready time changed", props)
+
             PreferenceManager.put(
                 (radioButton.text.toString().substring(0, radioButton.text.toString().length - 1))
                     .toInt(), Constants.GET_READY_SETTING
             )
+
             settingsViewModel.onReadyTimeChanged(radioButton.text.toString())
         }
         builder.setView(dialogBinding.root)
@@ -361,6 +385,12 @@ class SettingsFrag : Fragment() {
             val selectedSound =
                 dialogBinding.soundEffectSelect.findViewById<RadioButton>(dialogBinding.soundEffectSelect.checkedRadioButtonId).text.toString()
             bind.soundEffectDisplay.text = selectedSound
+
+            val props = JSONObject()
+            props.put("source", "SettingsFrag")
+            props.put("sound selected", selectedSound)
+
+            (activity as MainActivity).mixpanel.track("Sound effect changed", props)
 
             // Save in Preferences/ViewModel
             PreferenceManager.put(selectedSound, Constants.SOUND_EFFECT_SETTING)
