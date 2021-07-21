@@ -88,7 +88,7 @@ class OnBoardActivity : BaseActivity() {
         bind.continueButton.setOnClickListener {
             val props = JSONObject()
             props.put("source", "OnBoardActivity")
-            mixpanelAPI.track("Finished On-boarding", props)
+            mixpanelAPI.track("Finished on-boarding", props)
 
             launchMain()
         }
