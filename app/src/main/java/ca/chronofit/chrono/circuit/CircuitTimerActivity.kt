@@ -256,6 +256,26 @@ class CircuitTimerActivity : BaseActivity() {
         }
 
         animations.recycle()
+        //Play Complete Sound
+        playSound(Constants.SOUND_COMPLETE)
+        // Wait 2.5 seconds before showing the finish prompt
+        Handler(
+            Looper.getMainLooper()
+        ).postDelayed(
+            {
+                isDone()
+            }, celebrateTimeout
+        )
+
+        val props = JSONObject()
+        props.put("source", "CircuitTimerActivity")
+        props.put("name", circuit.name)
+        props.put("sets", circuit.sets)
+        props.put("work", circuit.work)
+        props.put("rest", circuit.rest)
+        props.put("iconID", circuit.iconId)
+
+        mixpanelAPI.track("Circuit Completed", props)
     }
 
     private fun getFact() {
@@ -312,6 +332,16 @@ class CircuitTimerActivity : BaseActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         loadTimer(circuit)
         getReady()
+
+        val props = JSONObject()
+        props.put("source", "CircuitCreateActivity")
+        props.put("name", circuit.name)
+        props.put("sets", circuit.sets)
+        props.put("work", circuit.work)
+        props.put("rest", circuit.rest)
+        props.put("iconID", circuit.iconId)
+
+        mixpanelAPI.track("Circuit started", props)
     }
 
     private fun resume() {
