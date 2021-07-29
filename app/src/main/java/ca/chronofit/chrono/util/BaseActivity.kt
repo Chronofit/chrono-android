@@ -6,12 +6,12 @@ import androidx.appcompat.app.AppCompatActivity
 import ca.chronofit.chrono.util.constants.Constants
 import ca.chronofit.chrono.util.objects.CircuitsObject
 import ca.chronofit.chrono.util.objects.PreferenceManager
-import com.mixpanel.android.mpmetrics.MixpanelAPI;
+import com.mixpanel.android.mpmetrics.MixpanelAPI
 
 open class BaseActivity : AppCompatActivity() {
     private var circuits: CircuitsObject? = null
 
-    lateinit var mixpanelAPI: MixpanelAPI;
+    lateinit var mixpanelAPI: MixpanelAPI
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,7 +24,7 @@ open class BaseActivity : AppCompatActivity() {
             PreferenceManager.put(circuits, Constants.CIRCUITS)
         }
 
-        mixpanelAPI = MixpanelAPI.getInstance(this, "98ea90ecf94f95afad803867c66290db");
+        mixpanelAPI = MixpanelAPI.getInstance(this, "98ea90ecf94f95afad803867c66290db")
     }
 
     public override fun onSaveInstanceState(state: Bundle) {

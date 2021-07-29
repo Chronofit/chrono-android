@@ -176,8 +176,8 @@
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/celebrate_animation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -191,8 +191,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/large_element_padding"
-                android:textSize="@dimen/huge_text"
-                android:textStyle="bold"
+                android:textSize="@dimen/xl_huge_text"
                 app:layout_constraintBottom_toTopOf="@+id/quote_subtitle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -203,12 +202,12 @@
                 android:id="@+id/quote_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/huge_element_padding"
                 android:layout_marginTop="-20dp"
+                android:layout_marginBottom="@dimen/medium_element_padding"
                 android:fontFamily="@font/nunito_semibold"
                 android:gravity="center"
                 android:text="@string/circuit_complete_subtitle"
-                android:textSize="@dimen/medium_text"
+                android:textSize="@dimen/xs_medium_text"
                 app:layout_constraintBottom_toTopOf="@+id/bottom_layout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -229,7 +228,10 @@
                     app:layout_constraintHeight_percent="0.5"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintWidth_percent="0.5" />
+                    app:layout_constraintWidth_percent="0.5"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="animations/chrono_cat_2.json"
+                    app:lottie_loop="true" />
 
                 <TextView
                     android:id="@+id/fact_header"

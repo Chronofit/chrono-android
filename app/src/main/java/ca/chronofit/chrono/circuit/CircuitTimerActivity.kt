@@ -1,11 +1,9 @@
 package ca.chronofit.chrono.circuit
 
 import android.animation.Animator
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityOptions
-import android.content.res.TypedArray
 import android.graphics.Color
 import android.media.AudioAttributes
 import android.media.AudioManager
@@ -14,6 +12,7 @@ import android.media.ToneGenerator
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.transition.Fade
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -34,7 +33,6 @@ import org.json.JSONObject
 import java.math.BigDecimal
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
-import kotlin.random.Random
 
 class CircuitTimerActivity : BaseActivity() {
     private lateinit var bind: ActivityCircuitTimerBinding
@@ -207,6 +205,7 @@ class CircuitTimerActivity : BaseActivity() {
         window.statusBarColor = Color.TRANSPARENT
         bind.mainLayout.visibility = View.GONE
         bind.celebrateLayout.visibility = View.VISIBLE
+        bind.celebrateAnimation.bringToFront()
 
         FirebaseAnalytics.getInstance(this).logEvent(Events.CIRCUIT_COMPLETED, Bundle())
         playSound(Constants.SOUND_COMPLETE)
@@ -219,6 +218,12 @@ class CircuitTimerActivity : BaseActivity() {
         bind.restartButton.setOnClickListener {
             startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
             finish()
+        }
+
+        if (fact != null) {
+            bind.fact.text = fact
+        } else {
+            bind.fact.text = "Error"
         }
 
         bind.fact.text = fact
@@ -235,12 +240,16 @@ class CircuitTimerActivity : BaseActivity() {
             }
         }
 
+
+        /* TODO: Randomizing disabled temporarily due to issues with Lottie files.
         val animations: TypedArray = resources.obtainTypedArray(R.array.chrono_cat_files)
         val selectedAnimation = animations.getString(Random.nextInt(1, 5) - 1)
 
         bind.factAnimation!!.setAnimation(selectedAnimation)
         bind.factAnimation!!.repeatCount = ValueAnimator.INFINITE
         bind.factAnimation!!.playAnimation()
+        animations.recycle()
+        */
 
         if (PreferenceManager.get<Int>(Constants.TOTAL_CIRCUITS) == null) {
             PreferenceManager.put(1, Constants.TOTAL_CIRCUITS)
@@ -255,18 +264,6 @@ class CircuitTimerActivity : BaseActivity() {
             PreferenceManager.put(currTotal!! + thisTotal, Constants.TOTAL_TIME)
         }
 
-        animations.recycle()
-        //Play Complete Sound
-        playSound(Constants.SOUND_COMPLETE)
-        // Wait 2.5 seconds before showing the finish prompt
-        Handler(
-            Looper.getMainLooper()
-        ).postDelayed(
-            {
-                isDone()
-            }, celebrateTimeout
-        )
-
         val props = JSONObject()
         props.put("source", "CircuitTimerActivity")
         props.put("name", circuit.name)
@@ -279,22 +276,26 @@ class CircuitTimerActivity : BaseActivity() {
     }
 
     private fun getFact() {
-        val client = OkHttpClient()
+        try {
+            val client = OkHttpClient()
 
-        thread {
-            val request = Request.Builder()
-                .url(getString(R.string.fact_api))
-                .build()
+            thread {
+                val request = Request.Builder()
+                    .url(getString(R.string.fact_api))
+                    .build()
 
-            client.newCall(request).execute().use { response ->
-                if (response.isSuccessful) {
-                    val responseObj = JSONObject(response.body!!.string())
-                    println("debug: $responseObj")
-                    fact = responseObj.getString("text")
-                } else {
-                    throw java.io.IOException("Unexpected code $response")
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val responseObj = JSONObject(response.body!!.string())
+                        println("debug: $responseObj")
+                        fact = responseObj.getString("text")
+                    } else {
+                        throw java.io.IOException("Unexpected code $response")
+                    }
                 }
             }
+        } catch (e: Exception) {
+            Log.e("CIRCUIT_COMPLETE", "Unable to get fact.")
         }
     }
 

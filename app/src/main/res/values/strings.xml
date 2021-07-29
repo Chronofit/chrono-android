@@ -166,11 +166,7 @@
     </string-array>
 
     <string-array name="chrono_cat_files">
-        <item>animations/cat_yoga_adomuka.json</item>
-        <item>animations/cat_yoga_bakasana.json</item>
-        <item>animations/cat_yoga_trikonasana.json</item>
-        <item>animations/cat_yoga_virabhadrasana.json</item>
-        <item>animations/cat_yoga_vrksasana.json</item>
+        <item>animations/chrono_cat_2.json</item>
     </string-array>
 
 </resources>
