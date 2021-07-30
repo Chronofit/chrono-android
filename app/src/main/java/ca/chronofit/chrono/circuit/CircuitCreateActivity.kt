@@ -28,6 +28,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import java.util.*
 import kotlin.collections.ArrayList
+import org.json.JSONObject
 
 class CircuitCreateActivity : BaseActivity() {
     private lateinit var bind: ActivityCircuitCreateBinding
@@ -164,6 +165,17 @@ class CircuitCreateActivity : BaseActivity() {
         }
         PreferenceManager.put(circuits, Constants.CIRCUITS)
         setResult(Activity.RESULT_OK)
+
+        val props = JSONObject()
+        props.put("source", "CircuitCreateActivity")
+        props.put("name", circuit.name)
+        props.put("sets", circuit.sets)
+        props.put("work", circuit.work)
+        props.put("rest", circuit.rest)
+        props.put("iconID", circuit.iconId)
+
+        mixpanelAPI.track("Circuit created", props)
+
         finish()
     }
 

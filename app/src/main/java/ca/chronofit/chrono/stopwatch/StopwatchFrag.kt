@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import ca.chronofit.chrono.MainActivity
 import ca.chronofit.chrono.R
 import ca.chronofit.chrono.databinding.FragmentStopwatchBinding
 import ca.chronofit.chrono.util.adapters.LapViewAdapter
@@ -23,6 +24,7 @@ import ca.chronofit.chrono.util.constants.Events
 import ca.chronofit.chrono.util.objects.LapObject
 import ca.chronofit.chrono.util.objects.SettingsViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
+import org.json.JSONObject
 import java.text.DecimalFormat
 
 class StopwatchFrag : Fragment() {
@@ -51,30 +53,55 @@ class StopwatchFrag : Fragment() {
 
         // Button Logic
         bind.startButton.setOnClickListener {
+            val props = JSONObject()
+            props.put("source", "StopwatchFrag")
+            (activity as MainActivity).mixpanel.track("Stopwatch started", props)
+
             startStopwatch()
             FirebaseAnalytics.getInstance(requireContext())
                 .logEvent(Events.STOPWATCH_STARTED, Bundle())
         }
 
         bind.stopButton.setOnClickListener {
+            val props = JSONObject()
+            props.put("source", "StopwatchFrag")
+            (activity as MainActivity).mixpanel.track("Stopwatch stopped", props)
+
             stopStopwatch()
             FirebaseAnalytics.getInstance(requireContext())
                 .logEvent(Events.STOPWATCH_STOPPED, Bundle())
         }
 
         bind.resumeButton.setOnClickListener {
+            val props = JSONObject()
+            props.put("source", "StopwatchFrag")
+            (activity as MainActivity).mixpanel.track("Stopwatch resumed", props)
+
             resumeStopwatch()
         }
 
         bind.resetButton.setOnClickListener {
+            val props = JSONObject()
+            props.put("source", "StopwatchFrag")
+            (activity as MainActivity).mixpanel.track("Stopwatch reset", props)
+
             resetStopwatch()
         }
 
         bind.lapButton.setOnClickListener {
+            val props = JSONObject()
+            props.put("source", "StopwatchFrag")
+            (activity as MainActivity).mixpanel.track("Stopwatch lapped", props)
+
             if (lapCount == 0) {
                 laps.add(LapObject())
             }
             if (lapCount >= (maxLapCount - 1)) {
+
+                val props = JSONObject()
+                props.put("source", "StopwatchFrag")
+                (activity as MainActivity).mixpanel.track("Max lap count reached", props)
+
                 Toast.makeText(
                     requireContext(),
                     "What in marathon...max laps reached! \uD83E\uDD75",

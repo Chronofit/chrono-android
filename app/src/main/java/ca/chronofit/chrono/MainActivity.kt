@@ -32,6 +32,8 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
+import com.mixpanel.android.mpmetrics.MixpanelAPI
+import org.json.JSONObject
 
 class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelectedListener {
     private lateinit var bind: ActivityMainBinding
@@ -41,6 +43,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     private lateinit var frag1: StopwatchFrag
     private lateinit var frag2: CircuitDashboardFrag
     private lateinit var frag3: SettingsFrag
+    lateinit var mixpanel : MixpanelAPI;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +52,12 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         PreferenceManager.with(this)
 
         initRemoteConfig()
+
+        mixpanel = mixpanelAPI;
+
+        val props = JSONObject()
+        props.put("source", "MainActivity")
+        mixpanelAPI.track("App Launched!", props)
 
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
