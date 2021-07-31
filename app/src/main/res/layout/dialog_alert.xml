@@ -63,5 +63,7 @@
                 app:cornerRadius="@dimen/small_element_padding" />
 
         </LinearLayout>
+
     </LinearLayout>
+
 </layout>

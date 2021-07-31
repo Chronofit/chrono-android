@@ -28,6 +28,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/dark_emoji"
                 android:textSize="@dimen/xl_large_text" />
+
         </LinearLayout>
 
         <com.google.android.material.textview.MaterialTextView
@@ -72,5 +73,7 @@
                 android:textSize="@dimen/medium_text" />
 
         </RadioGroup>
+
     </LinearLayout>
+
 </layout>

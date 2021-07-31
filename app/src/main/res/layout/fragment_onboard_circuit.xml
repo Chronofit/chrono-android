@@ -43,5 +43,7 @@
                 android:textSize="@dimen/medium_text" />
 
         </LinearLayout>
+
     </RelativeLayout>
+
 </layout>

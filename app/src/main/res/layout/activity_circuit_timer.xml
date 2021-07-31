@@ -69,6 +69,7 @@
                 <View
                     android:layout_width="wrap_content"
                     android:layout_height="100dp" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -94,6 +95,7 @@
                     android:textSize="@dimen/xl_medium_text"
                     android:textStyle="bold"
                     app:cornerRadius="13dp" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -119,6 +121,7 @@
                     android:textSize="@dimen/xl_medium_text"
                     android:textStyle="bold"
                     app:cornerRadius="13dp" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -160,6 +163,7 @@
                     app:cornerRadius="13dp" />
 
             </LinearLayout>
+
         </RelativeLayout>
 
         <RelativeLayout
@@ -192,5 +196,7 @@
                 android:textStyle="bold" />
 
         </RelativeLayout>
+
     </RelativeLayout>
+
 </layout>

@@ -67,6 +67,7 @@
                     android:layout_marginStart="@dimen/custom_padding_4"
                     android:alpha="0.6"
                     tools:text="6 sets" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -93,6 +94,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     tools:text="Work: 60s" />
+
             </LinearLayout>
 
             <LinearLayout

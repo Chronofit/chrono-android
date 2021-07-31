@@ -23,4 +23,5 @@
             android:layout_above="@+id/nav_bar" />
 
     </RelativeLayout>
+
 </layout>

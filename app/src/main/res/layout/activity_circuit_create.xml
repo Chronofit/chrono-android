@@ -80,6 +80,7 @@
                     android:textColor="@color/stop_red"
                     android:textSize="@dimen/smaller_text"
                     android:visibility="gone" />
+
             </RelativeLayout>
 
             <LinearLayout
