@@ -12,7 +12,6 @@ import android.media.ToneGenerator
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.transition.Fade
-import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -33,6 +32,8 @@ import org.json.JSONObject
 import java.math.BigDecimal
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 
 class CircuitTimerActivity : BaseActivity() {
     private lateinit var bind: ActivityCircuitTimerBinding
@@ -177,20 +178,17 @@ class CircuitTimerActivity : BaseActivity() {
                 if (currentSet != 0) {
                     when (runningState) {
                         RunningState.READY -> {
-//                            workout()
-                            complete()
+                            workout()
                         }
                         RunningState.WORK -> {
                             if (currentSet == 1 && skipLastRest) {
                                 complete()
                             } else {
-//                                rest()
-                                complete()
+                                rest()
                             }
                         }
                         RunningState.REST -> {
-//                            workout()
-                            complete()
+                            workout()
                         }
                         else -> complete()
                     }
@@ -223,10 +221,9 @@ class CircuitTimerActivity : BaseActivity() {
         if (fact != null) {
             bind.fact.text = fact
         } else {
-            bind.fact.text = "Error"
+            bind.fact.text = getString(R.string.fact_error)
         }
 
-        bind.fact.text = fact
         val thisTotal = circuit.sets!!.times(timeWork)
         when {
             thisTotal <= 10 -> {
@@ -276,7 +273,7 @@ class CircuitTimerActivity : BaseActivity() {
     }
 
     private fun getFact() {
-        try {
+        if (isInternetAvailable()) {
             val client = OkHttpClient()
 
             thread {
@@ -287,15 +284,14 @@ class CircuitTimerActivity : BaseActivity() {
                 client.newCall(request).execute().use { response ->
                     if (response.isSuccessful) {
                         val responseObj = JSONObject(response.body!!.string())
-                        println("debug: $responseObj")
                         fact = responseObj.getString("text")
                     } else {
                         throw java.io.IOException("Unexpected code $response")
                     }
                 }
             }
-        } catch (e: Exception) {
-            Log.e("CIRCUIT_COMPLETE", "Unable to get fact.")
+        } else {
+            fact = null
         }
     }
 
@@ -483,6 +479,21 @@ class CircuitTimerActivity : BaseActivity() {
         }
         setResult(Activity.RESULT_CANCELED)
         finish()
+    }
+
+    private fun isInternetAvailable(): Boolean {
+        val connectivityManager =
+            getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkCapabilities = connectivityManager.activeNetwork ?: return false
+        val actNw =
+            connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+
+        return when {
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            else -> false
+        }
     }
 
     override fun onBackPressed() {
