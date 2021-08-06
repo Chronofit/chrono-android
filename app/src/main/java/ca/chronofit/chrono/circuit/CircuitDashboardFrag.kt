@@ -124,6 +124,12 @@ class CircuitDashboardFrag : Fragment() {
                 }
             }
         }
+
+        if (PreferenceManager.get(Constants.SORT_PREFERENCE) == Constants.POPULARITY) {
+            circuitsObject.circuits.sortByDescending { it.count }
+            PreferenceManager.put(Constants.POPULARITY, Constants.SORT_PREFERENCE)
+            animateChange()
+        }
     }
 
     @Suppress("NAME_SHADOWING")
@@ -179,12 +185,6 @@ class CircuitDashboardFrag : Fragment() {
 
         PreferenceManager.put(circuitsObject, Constants.CIRCUITS)
         recyclerView.adapter?.notifyDataSetChanged()
-
-        if (PreferenceManager.get(Constants.SORT_PREFERENCE) == Constants.POPULARITY) {
-            circuitsObject.circuits.sortByDescending { circuit -> circuit.count }
-            PreferenceManager.put(Constants.POPULARITY, Constants.SORT_PREFERENCE)
-            animateChange()
-        }
 
         startActivityForResult(intent, Constants.DASH_TO_TIMER)
     }
