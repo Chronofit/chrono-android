@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.preference.Preference
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import ca.chronofit.chrono.MainActivity
@@ -134,7 +135,9 @@ class CircuitDashboardFrag : Fragment() {
 
     @Suppress("NAME_SHADOWING")
     private fun checkForReview() {
-        if ((PreferenceManager.get<Int>(Constants.NUM_COMPLETE) != null) && (PreferenceManager.get<Int>(
+        if ((PreferenceManager.get<Int>(Constants.NUM_COMPLETE) != null) && (PreferenceManager.get<Boolean>(
+                Constants.REVIEW_PROMPT_COMPLETE
+            ) != null) && (!PreferenceManager.get<Boolean>(Constants.REVIEW_PROMPT_COMPLETE)!!) && (PreferenceManager.get<Int>(
                 Constants.NUM_COMPLETE
             )!! >= remoteConfig.getString(Constants.CONFIG_REVIEW_THRESHOLD).toInt())
         ) {
@@ -158,6 +161,8 @@ class CircuitDashboardFrag : Fragment() {
                             "Thank you for the review. Your feedback is appreciated!",
                             Toast.LENGTH_SHORT
                         ).show()
+
+                        PreferenceManager.put(true, Constants.REVIEW_PROMPT_COMPLETE)
                     }
                 } else {
                     Log.e("CircuitDashFrag", "Problem launching review flow")
@@ -266,11 +271,11 @@ class CircuitDashboardFrag : Fragment() {
         fragBinding.shareLayout.setOnClickListener {
             val props = JSONObject()
             props.put("source", "CircuitDashboardActivity")
-            props.put("name", circuitsObject!!.circuits?.get(position)!!.name)
-            props.put("sets", circuitsObject!!.circuits?.get(position)!!.sets)
-            props.put("work", circuitsObject!!.circuits?.get(position)!!.work)
-            props.put("rest", circuitsObject!!.circuits?.get(position)!!.rest)
-            props.put("iconID", circuitsObject!!.circuits?.get(position)!!.iconId)
+            props.put("name", circuitsObject.circuits[position].name)
+            props.put("sets", circuitsObject.circuits[position].sets)
+            props.put("work", circuitsObject.circuits[position].work)
+            props.put("rest", circuitsObject.circuits[position].rest)
+            props.put("iconID", circuitsObject.circuits[position].iconId)
 
             (activity as MainActivity).mixpanel.track("Circuit Shared", props)
 
