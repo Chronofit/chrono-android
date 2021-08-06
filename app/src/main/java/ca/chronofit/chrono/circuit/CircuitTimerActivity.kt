@@ -1,5 +1,6 @@
 package ca.chronofit.chrono.circuit
 
+import android.animation.Animator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityOptions
@@ -10,10 +11,7 @@ import android.media.SoundPool
 import android.media.ToneGenerator
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.os.Handler
-import android.os.Looper
 import android.transition.Fade
-import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -21,39 +19,43 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import ca.chronofit.chrono.R
 import ca.chronofit.chrono.databinding.ActivityCircuitTimerBinding
-import ca.chronofit.chrono.databinding.DialogAlertBinding
 import ca.chronofit.chrono.util.BaseActivity
 import ca.chronofit.chrono.util.constants.Constants
 import ca.chronofit.chrono.util.constants.Events
 import ca.chronofit.chrono.util.objects.CircuitObject
 import ca.chronofit.chrono.util.objects.PreferenceManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.GsonBuilder
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.json.JSONObject
 import java.math.BigDecimal
+import kotlin.concurrent.thread
 import kotlin.math.roundToInt
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class CircuitTimerActivity : BaseActivity() {
     private lateinit var bind: ActivityCircuitTimerBinding
+    private lateinit var countdown: CountDownTimer
     private lateinit var soundPool: SoundPool
     private lateinit var soundMap: HashMap<String, Int>
+    private lateinit var circuit: CircuitObject
     private var tone: ToneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
-    private lateinit var countdown: CountDownTimer
     private var secondsLeft: Float = 0.0f
-    private val celebrateTimeout = 2500L // Timeout delay
     private var getReadyTime: Int = 5
     private var audioPrompts: Boolean = true
     private var skipLastRest: Boolean = false
     private var soundEffect: String = Constants.SOUND_LONG_WHISTLE
     private var timerState: TimerState = TimerState.INIT
     private var runningState: RunningState = RunningState.INIT
-    private lateinit var circuit: CircuitObject
     private var currentSet: Int = 0
     private var sets: Int = 0
     private var timeRest: Int = 0
     private var timeWork: Int = 0
     private var criticalSeconds: Int = 0
+    private var fact: String? = null
 
     enum class TimerState { INIT, RUNNING, PAUSED }
     enum class RunningState { READY, INIT, WORK, REST }
@@ -68,16 +70,13 @@ class CircuitTimerActivity : BaseActivity() {
         }
         bind = DataBindingUtil.setContentView(this, R.layout.activity_circuit_timer)
 
-        // Load Data
+        setupView()
         initData()
-
-        // Initialize View
-        updateButtonUI()
-        updateRestUI()
-
-        // Initialize SoundPool
         initSounds()
+        getFact()
+    }
 
+    private fun setupView() {
         bind.startButton.setOnClickListener {
             FirebaseAnalytics.getInstance(this).logEvent(Events.CIRCUIT_STARTED, Bundle())
             start()
@@ -112,6 +111,29 @@ class CircuitTimerActivity : BaseActivity() {
         }
 
         bind.closeButton.setOnClickListener { exitTimer() }
+
+        bind.celebrateAnimation.addAnimatorListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator?) {
+                println("debug: animation started")
+                bind.celebrateAnimation.visibility = View.VISIBLE
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                println("debug: animation ended")
+                bind.celebrateAnimation.visibility = View.GONE
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+                println("debug: animation cancelled")
+            }
+
+            override fun onAnimationRepeat(animation: Animator?) {
+                println("debug: animation repeated")
+            }
+        })
+
+        updateButtonUI()
+        updateRestUI()
     }
 
     private fun initData() {
@@ -131,7 +153,6 @@ class CircuitTimerActivity : BaseActivity() {
         soundPool = SoundPool.Builder().setAudioAttributes(audioAttributes).setMaxStreams(1).build()
         soundMap = HashMap()
 
-        // Load Sounds
         soundMap[soundEffect] = soundPool.load(this, getSoundFile(soundEffect), 1)
         soundMap[Constants.SOUND_COMPLETE] = soundPool.load(this, R.raw.complete, 1)
     }
@@ -162,7 +183,7 @@ class CircuitTimerActivity : BaseActivity() {
                         }
                         RunningState.WORK -> {
                             if (currentSet == 1 && skipLastRest) {
-                                celebrate()
+                                complete()
                             } else {
                                 rest()
                             }
@@ -170,23 +191,63 @@ class CircuitTimerActivity : BaseActivity() {
                         RunningState.REST -> {
                             workout()
                         }
-                        else -> celebrate()
+                        else -> complete()
                     }
                 } else {
-                    celebrate()
+                    complete()
                 }
             }
         }.start()
     }
 
-    private fun celebrate() {
-        // Load celebrate layout
+    private fun complete() {
+        window.statusBarColor = Color.TRANSPARENT
         bind.mainLayout.visibility = View.GONE
         bind.celebrateLayout.visibility = View.VISIBLE
-        window.statusBarColor = ContextCompat.getColor(this, R.color.gradient_start)
-        FirebaseAnalytics.getInstance(this).logEvent(Events.CIRCUIT_COMPLETED, Bundle())
+        bind.celebrateAnimation.bringToFront()
 
-        //Save total time and sets
+        FirebaseAnalytics.getInstance(this).logEvent(Events.CIRCUIT_COMPLETED, Bundle())
+        playSound(Constants.SOUND_COMPLETE)
+
+        bind.finishButton.setOnClickListener {
+            setResult(Activity.RESULT_OK)
+            finish()
+        }
+
+        bind.restartButton.setOnClickListener {
+            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
+            finish()
+        }
+
+        if (fact != null) {
+            bind.fact.text = fact
+        } else {
+            bind.fact.text = getString(R.string.fact_error)
+        }
+
+        val thisTotal = circuit.sets!!.times(timeWork)
+        when {
+            thisTotal <= 10 -> {
+                bind.quote.text = getString(R.string.quote_weak)
+            }
+            thisTotal in 11..29 -> {
+                bind.quote.text = getString(R.string.quote_medium)
+            }
+            else -> {
+                bind.quote.text = getString(R.string.quote_strong)
+            }
+        }
+
+        /* TODO: Randomizing disabled temporarily due to issues with Lottie files.
+        val animations: TypedArray = resources.obtainTypedArray(R.array.chrono_cat_files)
+        val selectedAnimation = animations.getString(Random.nextInt(1, 5) - 1)
+
+        bind.factAnimation!!.setAnimation(selectedAnimation)
+        bind.factAnimation!!.repeatCount = ValueAnimator.INFINITE
+        bind.factAnimation!!.playAnimation()
+        animations.recycle()
+        */
+
         if (PreferenceManager.get<Int>(Constants.TOTAL_CIRCUITS) == null) {
             PreferenceManager.put(1, Constants.TOTAL_CIRCUITS)
         } else {
@@ -196,21 +257,9 @@ class CircuitTimerActivity : BaseActivity() {
         if (PreferenceManager.get<Int>(Constants.TOTAL_TIME) == null) {
             PreferenceManager.put(BigDecimal(0), Constants.TOTAL_CIRCUITS)
         } else {
-            val thisTotal = circuit.sets!!.times(timeWork)
             val currTotal = PreferenceManager.get<Int>(Constants.TOTAL_TIME)
             PreferenceManager.put(currTotal!! + thisTotal, Constants.TOTAL_TIME)
         }
-
-        //Play Complete Sound
-        playSound(Constants.SOUND_COMPLETE)
-        // Wait 2.5 seconds before showing the finish prompt
-        Handler(
-            Looper.getMainLooper()
-        ).postDelayed(
-            {
-                isDone()
-            }, celebrateTimeout
-        )
 
         val props = JSONObject()
         props.put("source", "CircuitTimerActivity")
@@ -223,49 +272,31 @@ class CircuitTimerActivity : BaseActivity() {
         mixpanelAPI.track("Circuit Completed", props)
     }
 
-    private fun isDone() {
-        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        if (PreferenceManager.get<Int>(Constants.NUM_COMPLETE) != null) {
-            val increment = (PreferenceManager.get<Int>(Constants.NUM_COMPLETE)!! + 1)
-            PreferenceManager.put(increment, Constants.NUM_COMPLETE)
+    private fun getFact() {
+        if (isInternetAvailable()) {
+            val client = OkHttpClient()
+
+            thread {
+                try {
+                    val request = Request.Builder()
+                        .url(getString(R.string.fact_api))
+                        .build()
+
+                    client.newCall(request).execute().use { response ->
+                        if (response.isSuccessful) {
+                            val responseObj = JSONObject(response.body!!.string())
+                            fact = responseObj.getString("text")
+                        } else {
+                            throw java.io.IOException("Unexpected code $response")
+                        }
+                    }
+                } catch (e: Exception) {
+                    FirebaseCrashlytics.getInstance().log("Fact Related Exception: ${e.message}")
+                }
+            }
         } else {
-            PreferenceManager.put(1, Constants.NUM_COMPLETE)
+            fact = null
         }
-
-        val builder =
-            MaterialAlertDialogBuilder(this, R.style.CustomMaterialDialog).create()
-        val dialogBinding = DialogAlertBinding.inflate(LayoutInflater.from(this))
-
-        // Set Dialog Views
-        dialogBinding.dialogTitle.text = getString(R.string.circuit_complete)
-        dialogBinding.dialogSubtitle.text = getString(R.string.circuit_complete_subtitle)
-        dialogBinding.confirm.text = getString(R.string.circuit_complete_confirm)
-        dialogBinding.cancel.text = getString(R.string.circuit_complete_cancel)
-
-        dialogBinding.confirm.setBackgroundColor(ContextCompat.getColor(this, R.color.colorAccent))
-        dialogBinding.confirm.setTextColor(ContextCompat.getColor(this, R.color.white))
-
-        // User wants to return to dashboard
-        dialogBinding.confirm.setOnClickListener {
-            builder.dismiss()
-            setResult(Activity.RESULT_OK)
-            finish()
-        }
-
-        // If the user wants to run the circuit again
-        dialogBinding.cancel.setOnClickListener {
-            // Reload the circuit
-            builder.dismiss()
-            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
-            finish()
-        }
-
-        builder.setCancelable(false)
-        builder.setCanceledOnTouchOutside(false)
-
-        // Display the Dialog
-        builder.setView(dialogBinding.root)
-        builder.show()
     }
 
     private fun getReady() {
@@ -452,6 +483,21 @@ class CircuitTimerActivity : BaseActivity() {
         }
         setResult(Activity.RESULT_CANCELED)
         finish()
+    }
+
+    private fun isInternetAvailable(): Boolean {
+        val connectivityManager =
+            getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkCapabilities = connectivityManager.activeNetwork ?: return false
+        val actNw =
+            connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+
+        return when {
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            else -> false
+        }
     }
 
     override fun onBackPressed() {
