@@ -34,6 +34,7 @@ import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class CircuitTimerActivity : BaseActivity() {
     private lateinit var bind: ActivityCircuitTimerBinding
@@ -237,7 +238,6 @@ class CircuitTimerActivity : BaseActivity() {
             }
         }
 
-
         /* TODO: Randomizing disabled temporarily due to issues with Lottie files.
         val animations: TypedArray = resources.obtainTypedArray(R.array.chrono_cat_files)
         val selectedAnimation = animations.getString(Random.nextInt(1, 5) - 1)
@@ -277,17 +277,21 @@ class CircuitTimerActivity : BaseActivity() {
             val client = OkHttpClient()
 
             thread {
-                val request = Request.Builder()
-                    .url(getString(R.string.fact_api))
-                    .build()
+                try {
+                    val request = Request.Builder()
+                        .url(getString(R.string.fact_api))
+                        .build()
 
-                client.newCall(request).execute().use { response ->
-                    if (response.isSuccessful) {
-                        val responseObj = JSONObject(response.body!!.string())
-                        fact = responseObj.getString("text")
-                    } else {
-                        throw java.io.IOException("Unexpected code $response")
+                    client.newCall(request).execute().use { response ->
+                        if (response.isSuccessful) {
+                            val responseObj = JSONObject(response.body!!.string())
+                            fact = responseObj.getString("text")
+                        } else {
+                            throw java.io.IOException("Unexpected code $response")
+                        }
                     }
+                } catch (e: Exception) {
+                    FirebaseCrashlytics.getInstance().log("Fact Related Exception: ${e.message}")
                 }
             }
         } else {
