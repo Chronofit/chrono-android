@@ -65,27 +65,30 @@ class CircuitDashboardFrag : Fragment() {
         observeSettings()
         loadData()
 
-        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
-        itemTouchHelper.attachToRecyclerView(recyclerView)
-
         bind.sortChips.apply {
             setOnCheckedChangeListener { _, checkedId ->
                 when (checkedId) {
                     R.id.chip_alphabetical -> {
                         circuitsObject.circuits.sortBy { circuit -> circuit.name }
+                        PreferenceManager.put(Constants.ALPHABETICAL, Constants.SORT_PREFERENCE)
                         animateChange()
                     }
                     R.id.chip_date -> {
                         circuitsObject.circuits.sortByDescending { circuit -> circuit.date }
+                        PreferenceManager.put(Constants.RECENTLY_ADDED, Constants.SORT_PREFERENCE)
                         animateChange()
                     }
                     R.id.chip_popular -> {
                         circuitsObject.circuits.sortByDescending { circuit -> circuit.count }
+                        PreferenceManager.put(Constants.POPULARITY, Constants.SORT_PREFERENCE)
                         animateChange()
                     }
                 }
             }
         }
+
+        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
 
         bind.addCircuit.setOnClickListener {
             FirebaseAnalytics.getInstance(requireContext())
@@ -165,7 +168,6 @@ class CircuitDashboardFrag : Fragment() {
         intent.putExtra("audioPrompts", audioPrompts)
         intent.putExtra("lastRest", lastRest)
         intent.putExtra("soundEffect", soundEffect)
-        startActivityForResult(intent, Constants.DASH_TO_TIMER)
 
         val index = circuitsObject.circuits.indexOf(circuit)
         val currCount = circuitsObject.circuits[index].count
@@ -174,8 +176,17 @@ class CircuitDashboardFrag : Fragment() {
         } else {
             circuitsObject.circuits[index].count = 0
         }
+
         PreferenceManager.put(circuitsObject, Constants.CIRCUITS)
         recyclerView.adapter?.notifyDataSetChanged()
+
+        if (PreferenceManager.get(Constants.SORT_PREFERENCE) == Constants.POPULARITY) {
+            circuitsObject.circuits.sortByDescending { circuit -> circuit.count }
+            PreferenceManager.put(Constants.POPULARITY, Constants.SORT_PREFERENCE)
+            animateChange()
+        }
+
+        startActivityForResult(intent, Constants.DASH_TO_TIMER)
     }
 
     private val itemTouchHelperCallback = object : ItemTouchHelper.Callback() {
@@ -214,6 +225,10 @@ class CircuitDashboardFrag : Fragment() {
     private fun itemMoved(current: Int, target: Int) {
         recyclerView.adapter!!.notifyItemMoved(current, target)
 
+        if (current != target) {
+            bind.sortChips.clearCheck()
+        }
+
         // Update Model
         val circuit = circuitsObject.circuits[current]
         circuitsObject.circuits.removeAt(current)
@@ -251,11 +266,11 @@ class CircuitDashboardFrag : Fragment() {
         fragBinding.shareLayout.setOnClickListener {
             val props = JSONObject()
             props.put("source", "CircuitDashboardActivity")
-            props.put("name",  circuitsObject!!.circuits?.get(position)!!.name)
-            props.put("sets",  circuitsObject!!.circuits?.get(position)!!.sets)
-            props.put("work",  circuitsObject!!.circuits?.get(position)!!.work)
-            props.put("rest",  circuitsObject!!.circuits?.get(position)!!.rest)
-            props.put("iconID",  circuitsObject!!.circuits?.get(position)!!.iconId)
+            props.put("name", circuitsObject!!.circuits?.get(position)!!.name)
+            props.put("sets", circuitsObject!!.circuits?.get(position)!!.sets)
+            props.put("work", circuitsObject!!.circuits?.get(position)!!.work)
+            props.put("rest", circuitsObject!!.circuits?.get(position)!!.rest)
+            props.put("iconID", circuitsObject!!.circuits?.get(position)!!.iconId)
 
             (activity as MainActivity).mixpanel.track("Circuit Shared", props)
 
@@ -354,6 +369,23 @@ class CircuitDashboardFrag : Fragment() {
                 { circuitObject: CircuitObject -> circuitClicked(circuitObject) },
                 { position: Int -> showMoreMenu(position) }, requireContext()
             )
+
+            bind.sortChips.apply {
+                when (PreferenceManager.get(Constants.SORT_PREFERENCE)) {
+                    Constants.ALPHABETICAL -> {
+                        clearCheck()
+                        check(R.id.chip_alphabetical)
+                    }
+                    Constants.RECENTLY_ADDED -> {
+                        clearCheck()
+                        check(R.id.chip_date)
+                    }
+                    Constants.POPULARITY -> {
+                        clearCheck()
+                        check(R.id.chip_popular)
+                    }
+                }
+            }
         } else {
             loadEmptyUI()
         }

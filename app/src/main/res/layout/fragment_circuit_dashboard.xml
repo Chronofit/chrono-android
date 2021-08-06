@@ -10,11 +10,12 @@
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:fillViewport="true"
             android:scrollbars="vertical">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent">
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/page_header"
@@ -68,10 +69,12 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_view"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     android:paddingTop="@dimen/xs_small_element_padding"
                     app:layoutManager="LinearLayoutManager"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/sort_chips"
+                    tools:itemCount="2"
                     tools:listitem="@layout/item_circuit" />
 
                 <com.google.android.material.textview.MaterialTextView
