@@ -29,6 +29,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/speaker_emoji"
                 android:textSize="@dimen/xl_large_text" />
+
         </LinearLayout>
 
         <com.google.android.material.textview.MaterialTextView
@@ -63,6 +64,7 @@
                 android:paddingHorizontal="@dimen/large_element_padding"
                 android:text="@string/short_whistle"
                 android:textSize="@dimen/medium_text" />
+
         </RadioGroup>
 
         <LinearLayout
@@ -100,6 +102,9 @@
                 android:textSize="@dimen/xs_medium_text"
                 android:textStyle="bold"
                 app:cornerRadius="@dimen/small_element_padding" />
+
         </LinearLayout>
+
     </LinearLayout>
+
 </layout>

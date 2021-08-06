@@ -26,6 +26,8 @@ import ca.chronofit.chrono.util.objects.CircuitsObject
 import ca.chronofit.chrono.util.objects.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
+import java.util.*
+import kotlin.collections.ArrayList
 import org.json.JSONObject
 
 class CircuitCreateActivity : BaseActivity() {
@@ -34,7 +36,6 @@ class CircuitCreateActivity : BaseActivity() {
     private var isEdit: Boolean = false
     private var editPosition: Int = -1
     private lateinit var iconNames: TypedArray
-
     private var showMinSetValueMsg = true
     private var showMinWorkValueMsg = true
     private var showMinRestValueMsg = true
@@ -144,6 +145,7 @@ class CircuitCreateActivity : BaseActivity() {
         circuit.sets = bind.setNum.text.toString().toInt()
         circuit.work = bind.setWork.text.toString().toInt()
         circuit.rest = bind.setRest.text.toString().toInt()
+        circuit.date = Calendar.getInstance().time
         circuit.iconId = selectedIcon
 
         // Save circuit in Shared Preferences

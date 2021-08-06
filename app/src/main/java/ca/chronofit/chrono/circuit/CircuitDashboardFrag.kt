@@ -20,7 +20,7 @@ import ca.chronofit.chrono.databinding.DialogAlertBinding
 import ca.chronofit.chrono.databinding.FragmentCircuitDashboardBinding
 import ca.chronofit.chrono.databinding.FragmentDashboardBottomSheetBinding
 import ca.chronofit.chrono.util.BaseActivity
-import ca.chronofit.chrono.util.adapters.ChapterItemAdapter
+import ca.chronofit.chrono.util.adapters.CircuitItemAdapter
 import ca.chronofit.chrono.util.constants.Constants
 import ca.chronofit.chrono.util.constants.Events
 import ca.chronofit.chrono.util.objects.CircuitObject
@@ -46,7 +46,7 @@ class CircuitDashboardFrag : Fragment() {
     private var audioPrompts: Boolean = true
     private var lastRest: Boolean = true
     private var soundEffect: String = Constants.SOUND_LONG_WHISTLE
-    private var circuitsObject: CircuitsObject? = null
+    private lateinit var circuitsObject: CircuitsObject
     private var selectedPosition: Int = 0
 
     override fun onCreateView(
@@ -58,12 +58,35 @@ class CircuitDashboardFrag : Fragment() {
             inflater, R.layout.fragment_circuit_dashboard,
             container, false
         )
-        PreferenceManager.with(activity as BaseActivity)
-
-        remoteConfig = Firebase.remoteConfig
-
         recyclerView = bind.recyclerView
+
+        PreferenceManager.with(activity as BaseActivity)
+        remoteConfig = Firebase.remoteConfig
+        observeSettings()
         loadData()
+
+        bind.sortChips.apply {
+            setOnCheckedChangeListener { _, checkedId ->
+                when (checkedId) {
+                    R.id.chip_alphabetical -> {
+                        circuitsObject.circuits.sortBy { circuit -> circuit.name }
+                        PreferenceManager.put(Constants.ALPHABETICAL, Constants.SORT_PREFERENCE)
+                        animateChange()
+                    }
+                    R.id.chip_date -> {
+                        circuitsObject.circuits.sortByDescending { circuit -> circuit.date }
+                        PreferenceManager.put(Constants.RECENTLY_ADDED, Constants.SORT_PREFERENCE)
+                        animateChange()
+                    }
+                    R.id.chip_popular -> {
+                        circuitsObject.circuits.sortByDescending { circuit -> circuit.count }
+                        PreferenceManager.put(Constants.POPULARITY, Constants.SORT_PREFERENCE)
+                        animateChange()
+                    }
+                }
+            }
+        }
+
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
@@ -76,8 +99,6 @@ class CircuitDashboardFrag : Fragment() {
             )
         }
 
-        observeSettings()
-
         return bind.root
     }
 
@@ -86,18 +107,14 @@ class CircuitDashboardFrag : Fragment() {
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 Constants.DASH_TO_CREATE -> {
-                    // Circuit Added
                     loadData()
                     Toast.makeText(requireContext(), "Circuit added and saved!", Toast.LENGTH_SHORT)
                         .show()
                 }
                 Constants.DASH_TO_TIMER -> {
-                    // Circuit Completed (Circuit Timer)
-                    // Ideal spot to ask for a rating after a threshold of timers have been run
                     checkForReview()
                 }
                 Constants.DASH_TO_EDIT -> {
-                    // Circuit Edited
                     loadData()
                     Toast.makeText(
                         requireContext(),
@@ -106,6 +123,12 @@ class CircuitDashboardFrag : Fragment() {
                     ).show()
                 }
             }
+        }
+
+        if (PreferenceManager.get(Constants.SORT_PREFERENCE) == Constants.POPULARITY) {
+            circuitsObject.circuits.sortByDescending { it.count }
+            PreferenceManager.put(Constants.POPULARITY, Constants.SORT_PREFERENCE)
+            animateChange()
         }
     }
 
@@ -151,6 +174,18 @@ class CircuitDashboardFrag : Fragment() {
         intent.putExtra("audioPrompts", audioPrompts)
         intent.putExtra("lastRest", lastRest)
         intent.putExtra("soundEffect", soundEffect)
+
+        val index = circuitsObject.circuits.indexOf(circuit)
+        val currCount = circuitsObject.circuits[index].count
+        if (currCount != null) {
+            circuitsObject.circuits[index].count = currCount + 1
+        } else {
+            circuitsObject.circuits[index].count = 0
+        }
+
+        PreferenceManager.put(circuitsObject, Constants.CIRCUITS)
+        recyclerView.adapter?.notifyDataSetChanged()
+
         startActivityForResult(intent, Constants.DASH_TO_TIMER)
     }
 
@@ -190,12 +225,21 @@ class CircuitDashboardFrag : Fragment() {
     private fun itemMoved(current: Int, target: Int) {
         recyclerView.adapter!!.notifyItemMoved(current, target)
 
+        if (current != target) {
+            bind.sortChips.clearCheck()
+        }
+
         // Update Model
-        val circuit = circuitsObject!!.circuits!![current]
-        circuitsObject!!.circuits!!.removeAt(current)
-        circuitsObject!!.circuits!!.add(target, circuit)
+        val circuit = circuitsObject.circuits[current]
+        circuitsObject.circuits.removeAt(current)
+        circuitsObject.circuits.add(target, circuit)
 
         // Save updated list in local storage
+        PreferenceManager.put(circuitsObject, Constants.CIRCUITS)
+    }
+
+    private fun animateChange() {
+        recyclerView.adapter!!.notifyDataSetChanged()
         PreferenceManager.put(circuitsObject, Constants.CIRCUITS)
     }
 
@@ -203,12 +247,10 @@ class CircuitDashboardFrag : Fragment() {
     private fun showMoreMenu(position: Int) {
         selectedPosition = position
 
-        // Roll out the bottom sheet as a dialog
         val bottomSheetFrag = BottomSheetDialog(requireContext())
         val fragBinding =
             FragmentDashboardBottomSheetBinding.inflate(LayoutInflater.from(requireContext()))
 
-        // Layout logic
         fragBinding.deleteLayout.setOnClickListener {
             deleteCircuit(bottomSheetFrag, position)
         }
@@ -224,11 +266,11 @@ class CircuitDashboardFrag : Fragment() {
         fragBinding.shareLayout.setOnClickListener {
             val props = JSONObject()
             props.put("source", "CircuitDashboardActivity")
-            props.put("name",  circuitsObject!!.circuits?.get(position)!!.name)
-            props.put("sets",  circuitsObject!!.circuits?.get(position)!!.sets)
-            props.put("work",  circuitsObject!!.circuits?.get(position)!!.work)
-            props.put("rest",  circuitsObject!!.circuits?.get(position)!!.rest)
-            props.put("iconID",  circuitsObject!!.circuits?.get(position)!!.iconId)
+            props.put("name", circuitsObject!!.circuits?.get(position)!!.name)
+            props.put("sets", circuitsObject!!.circuits?.get(position)!!.sets)
+            props.put("work", circuitsObject!!.circuits?.get(position)!!.work)
+            props.put("rest", circuitsObject!!.circuits?.get(position)!!.rest)
+            props.put("iconID", circuitsObject!!.circuits?.get(position)!!.iconId)
 
             (activity as MainActivity).mixpanel.track("Circuit Shared", props)
 
@@ -236,14 +278,13 @@ class CircuitDashboardFrag : Fragment() {
                 action = Intent.ACTION_SEND
                 putExtra(
                     Intent.EXTRA_TEXT,
-                    circuitsObject!!.circuits?.get(position)!!.shareString()
+                    circuitsObject.circuits[position].shareString()
                 )
                 type = "text/plain"
             }
             startActivity(Intent.createChooser(sendIntent, null))
         }
 
-        // Show Bottom Sheet
         bottomSheetFrag.setContentView(fragBinding.root)
         bottomSheetFrag.show()
     }
@@ -254,43 +295,36 @@ class CircuitDashboardFrag : Fragment() {
             MaterialAlertDialogBuilder(requireContext(), R.style.CustomMaterialDialog).create()
         val dialogBinding = DialogAlertBinding.inflate(LayoutInflater.from(requireContext()))
 
-        // Set Dialog Views
         dialogBinding.dialogTitle.text =
-            "Delete " + circuitsObject?.circuits!![position].name
+            "Delete " + circuitsObject.circuits[position].name
         dialogBinding.dialogSubtitle.text = getString(R.string.delete_circuit_subtitle)
         dialogBinding.confirm.text = getString(R.string.delete)
         dialogBinding.cancel.text = getString(R.string.cancel)
 
-        // Button Logic
         dialogBinding.cancel.setOnClickListener {
             builder.dismiss()
         }
 
         dialogBinding.confirm.setOnClickListener {
-            // Dismiss popups
             builder.dismiss()
             dialog!!.dismiss()
 
-            // Remove from model and recyclerview
-            circuitsObject?.circuits?.remove(circuitsObject?.circuits!![position])
+            circuitsObject.circuits.remove(circuitsObject.circuits[position])
             recyclerView.adapter?.notifyItemRemoved(position)
-            recyclerView.adapter?.notifyItemRangeChanged(position, circuitsObject?.circuits!!.size)
+            recyclerView.adapter?.notifyItemRangeChanged(position, circuitsObject.circuits.size)
 
             if (recyclerView.adapter?.itemCount!! == 0) {
                 loadEmptyUI()
             }
 
-            // Save updated list in local storage
             PreferenceManager.put(circuitsObject, Constants.CIRCUITS)
         }
 
-        // Display the Dialog
         builder.setView(dialogBinding.root)
         builder.show()
     }
 
     private fun observeSettings() {
-        // Retrieve Settings if they exist
         if (PreferenceManager.get<Int>(Constants.GET_READY_SETTING) != null) {
             readyTime = PreferenceManager.get<Int>(Constants.GET_READY_SETTING)!!
         }
@@ -305,7 +339,6 @@ class CircuitDashboardFrag : Fragment() {
 
         soundEffect = PreferenceManager.get(Constants.SOUND_EFFECT_SETTING).replace("\"", "")
 
-        // Observe Settings
         settingsViewModel.getReadyTime.observe(viewLifecycleOwner, { _readyTime ->
             readyTime = (_readyTime.substring(0, _readyTime.length - 1)).toInt()
         })
@@ -324,17 +357,35 @@ class CircuitDashboardFrag : Fragment() {
     }
 
     private fun loadData() {
-        circuitsObject = PreferenceManager.get<CircuitsObject>(Constants.CIRCUITS)
+        circuitsObject = PreferenceManager.get<CircuitsObject>(Constants.CIRCUITS)!!
 
-        if (circuitsObject != null && circuitsObject?.circuits!!.size > 0) {
+        if (circuitsObject.circuits.size > 0) {
             bind.recyclerView.visibility = View.VISIBLE
+            bind.sortChips.visibility = View.VISIBLE
             bind.emptyLayout.visibility = View.GONE
 
-            recyclerView.adapter = ChapterItemAdapter(
-                circuitsObject?.circuits!!,
+            recyclerView.adapter = CircuitItemAdapter(
+                circuitsObject.circuits,
                 { circuitObject: CircuitObject -> circuitClicked(circuitObject) },
                 { position: Int -> showMoreMenu(position) }, requireContext()
             )
+
+            bind.sortChips.apply {
+                when (PreferenceManager.get(Constants.SORT_PREFERENCE)) {
+                    Constants.ALPHABETICAL -> {
+                        clearCheck()
+                        check(R.id.chip_alphabetical)
+                    }
+                    Constants.RECENTLY_ADDED -> {
+                        clearCheck()
+                        check(R.id.chip_date)
+                    }
+                    Constants.POPULARITY -> {
+                        clearCheck()
+                        check(R.id.chip_popular)
+                    }
+                }
+            }
         } else {
             loadEmptyUI()
         }
@@ -342,6 +393,7 @@ class CircuitDashboardFrag : Fragment() {
 
     private fun loadEmptyUI() {
         bind.recyclerView.visibility = View.GONE
+        bind.sortChips.visibility = View.GONE
         bind.emptyLayout.visibility = View.VISIBLE
     }
 }

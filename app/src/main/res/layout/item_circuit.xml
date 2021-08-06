@@ -34,6 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/todo"
+                android:padding="@dimen/tiny_element_padding"
                 android:src="@drawable/ic_more"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -66,6 +67,7 @@
                     android:layout_marginStart="@dimen/custom_padding_4"
                     android:alpha="0.6"
                     tools:text="6 sets" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -92,6 +94,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     tools:text="Work: 60s" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -118,7 +121,11 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     tools:text="Rest: 60s" />
+
             </LinearLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </com.google.android.material.card.MaterialCardView>
+
 </layout>

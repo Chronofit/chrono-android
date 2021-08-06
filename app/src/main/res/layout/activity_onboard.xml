@@ -90,7 +90,6 @@
                 app:backgroundTint="@color/white"
                 app:cornerRadius="25dp"
                 app:icon="@drawable/ic_discord_logo"
-                app:iconSize="@dimen/xs_large_element_padding"
                 app:iconTint="@color/discord_color" />
 
             <com.google.android.material.button.MaterialButton
@@ -113,5 +112,7 @@
                 tools:ignore="RelativeOverlap" />
 
         </RelativeLayout>
+
     </RelativeLayout>
+
 </layout>

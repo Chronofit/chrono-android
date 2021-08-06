@@ -1,57 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:animateLayoutChanges="true">
+        android:layout_height="match_parent">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/circuits_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/opensans_bold"
-            android:gravity="center"
-            android:padding="@dimen/medium_element_padding"
-            android:text="@string/circuits"
-            android:textSize="@dimen/xl_huge_text" />
-
-        <LinearLayout
-            android:id="@+id/dash_layout"
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/circuits_header"
-            android:orientation="vertical">
+            android:fillViewport="true"
+            android:scrollbars="vertical">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingTop="@dimen/xs_small_element_padding"
-                android:scrollbars="vertical"
-                app:layoutManager="LinearLayoutManager">
+                android:layout_height="match_parent">
 
-            </androidx.recyclerview.widget.RecyclerView>
-        </LinearLayout>
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/page_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/opensans_bold"
+                    android:gravity="center"
+                    android:paddingTop="@dimen/medium_element_padding"
+                    android:paddingBottom="@dimen/small_element_padding"
+                    android:text="@string/circuits"
+                    android:textSize="@dimen/xl_huge_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:id="@+id/empty_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/circuits_header"
-            android:orientation="vertical"
-            android:visibility="gone">
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/sort_chips"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="@dimen/medium_element_padding"
+                    app:checkedChip="@+id/chip_popular"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/page_header"
+                    app:selectionRequired="true"
+                    app:singleSelection="true">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/huge_element_padding"
-                android:gravity="center"
-                android:padding="@dimen/medium_element_padding"
-                android:text="\uD83D\uDE31 \uD83D\uDE31 \uD83D\uDE31 \nYou don't have any created Circuits!"
-                android:textSize="@dimen/xl_medium_text" />
-        </LinearLayout>
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_popular"
+                        style="@style/CustomChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/popularity" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_date"
+                        style="@style/CustomChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/recently_added" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_alphabetical"
+                        style="@style/CustomChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/a_to_z" />
+
+                </com.google.android.material.chip.ChipGroup>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:paddingTop="@dimen/xs_small_element_padding"
+                    app:layoutManager="LinearLayoutManager"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/sort_chips"
+                    tools:itemCount="2"
+                    tools:listitem="@layout/item_circuit" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/empty_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/huge_element_padding"
+                    android:gravity="center"
+                    android:padding="@dimen/medium_element_padding"
+                    android:text="@string/empty_dashboard_text"
+                    android:textSize="@dimen/xl_medium_text"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/page_header" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_circuit"
@@ -64,10 +106,10 @@
             android:contentDescription="@string/todo"
             android:src="@drawable/ic_add"
             app:borderWidth="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:tint="@color/white" />
 
     </RelativeLayout>
+
 </layout>
-
-
-

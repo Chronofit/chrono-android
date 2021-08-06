@@ -73,6 +73,9 @@
                 android:textSize="@dimen/xs_medium_text"
                 android:textStyle="bold"
                 app:cornerRadius="@dimen/small_element_padding" />
+
         </LinearLayout>
+
     </LinearLayout>
+
 </layout>

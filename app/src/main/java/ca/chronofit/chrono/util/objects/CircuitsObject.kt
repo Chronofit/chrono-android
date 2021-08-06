@@ -5,5 +5,5 @@ import java.io.Serializable
 
 class CircuitsObject : Serializable {
     var key: String = Constants.CIRCUITS
-    var circuits: ArrayList<CircuitObject>? = ArrayList()
+    var circuits: ArrayList<CircuitObject> = ArrayList()
 }
