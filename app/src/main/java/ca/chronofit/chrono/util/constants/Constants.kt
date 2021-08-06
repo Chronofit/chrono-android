@@ -20,6 +20,7 @@ object Constants {
     const val SOUND_EFFECT_SETTING: String = "sound_effect"
     const val EASTER_EGG_SETTING: String = "easter_egg"
     const val EASTER_EGG_DIALOG: String = "easter_egg_dialog"
+    const val SORT_PREFERENCE: String = "sort_preference"
 
     // Activity Request Codes
     const val DASH_TO_CREATE: Int = 10001
@@ -50,4 +51,9 @@ object Constants {
     // Notification Id
     const val SWATCH_NOTIFICATION_ID: Int = 2416638
 //    const val CIRCUIT_NOTIFICATION_ID: Int = 341032
+
+    // Sort Options
+    const val POPULARITY: String = "popularity"
+    const val RECENTLY_ADDED: String = "recently_added"
+    const val ALPHABETICAL: String = "alphabetical"
 }
