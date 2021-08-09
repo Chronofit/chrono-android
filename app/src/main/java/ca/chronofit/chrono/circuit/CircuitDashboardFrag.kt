@@ -13,7 +13,6 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.preference.Preference
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import ca.chronofit.chrono.MainActivity
@@ -424,7 +423,7 @@ class CircuitDashboardFrag : Fragment() {
 
     private fun createLink(position: Int): String {
         val dynamicLink = Firebase.dynamicLinks.dynamicLink {
-            link = Uri.parse(circuitsObject!!.circuits?.get(position)!!.generateDeeplinkURL())
+            link = Uri.parse(circuitsObject.circuits[position].generateDeeplinkURL(requireContext()))
             domainUriPrefix = "https://chronofit.page.link/"
             androidParameters {
             }

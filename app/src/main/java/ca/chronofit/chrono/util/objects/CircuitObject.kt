@@ -1,6 +1,6 @@
 package ca.chronofit.chrono.util.objects
 
-import android.content.res.Resources
+import android.content.Context
 import ca.chronofit.chrono.R
 import java.util.Date
 
@@ -17,8 +17,14 @@ class CircuitObject {
         return "Circuit [name: ${this.name}, sets: ${this.sets}, work: ${this.work}, rest: ${this.rest}]"
     }
 
-    fun generateDeeplinkURL(): String {
-        return "https://www.chronofit.ca/${Resources.getSystem().getString(R.string.share_circuit_url_suffix)}?${Resources.getSystem().getString(R.string.name)}=\"$name\"&${Resources.getSystem().getString(R.string.sets)}=\"$sets\"&${Resources.getSystem().getString(R.string.work)}=\"$work\"&${Resources.getSystem().getString(R.string.rest)}=\"$rest\""
+    fun generateDeeplinkURL(context: Context): String {
+        return context.getString(
+            R.string.circuit_deeplink_url,
+            name,
+            sets.toString(),
+            work.toString(),
+            rest.toString()
+        )
     }
 
 }
