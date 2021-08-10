@@ -5,7 +5,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true">
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -15,7 +16,8 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:animateLayoutChanges="true">
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/page_header"
@@ -74,22 +76,17 @@
                     app:layoutManager="LinearLayoutManager"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/sort_chips"
-                    tools:itemCount="2"
+                    tools:itemCount="4"
                     tools:listitem="@layout/item_circuit" />
 
-                <com.google.android.material.textview.MaterialTextView
+                <include
                     android:id="@+id/empty_layout"
+                    layout="@layout/layout_empty_dashboard"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/huge_element_padding"
-                    android:gravity="center"
-                    android:padding="@dimen/medium_element_padding"
-                    android:text="@string/empty_dashboard_text"
-                    android:textSize="@dimen/xl_medium_text"
-                    android:visibility="gone"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/page_header" />
+                    android:layout_height="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/sort_chips"
+                    tools:visibility="gone" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

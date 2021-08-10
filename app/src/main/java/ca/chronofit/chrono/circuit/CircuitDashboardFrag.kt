@@ -28,6 +28,8 @@ import ca.chronofit.chrono.util.objects.CircuitObject
 import ca.chronofit.chrono.util.objects.CircuitsObject
 import ca.chronofit.chrono.util.objects.PreferenceManager
 import ca.chronofit.chrono.util.objects.SettingsViewModel
+import com.daimajia.androidanimations.library.Techniques
+import com.daimajia.androidanimations.library.YoYo
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.play.core.review.ReviewManagerFactory
@@ -52,6 +54,7 @@ class CircuitDashboardFrag : Fragment() {
     private var soundEffect: String = Constants.SOUND_LONG_WHISTLE
     private lateinit var circuitsObject: CircuitsObject
     private var selectedPosition: Int = 0
+    private var bounceFab: YoYo.YoYoString? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -261,8 +264,10 @@ class CircuitDashboardFrag : Fragment() {
     }
 
     private fun animateChange() {
-        recyclerView.adapter!!.notifyDataSetChanged()
-        PreferenceManager.put(circuitsObject, Constants.CIRCUITS)
+        if (circuitsObject.circuits.size != 0) {
+            recyclerView.adapter!!.notifyDataSetChanged()
+            PreferenceManager.put(circuitsObject, Constants.CIRCUITS)
+        }
     }
 
     @SuppressLint("InflateParams")
@@ -384,9 +389,7 @@ class CircuitDashboardFrag : Fragment() {
         circuitsObject = PreferenceManager.get<CircuitsObject>(Constants.CIRCUITS)!!
 
         if (circuitsObject.circuits.size > 0) {
-            bind.recyclerView.visibility = View.VISIBLE
-            bind.sortChips.visibility = View.VISIBLE
-            bind.emptyLayout.visibility = View.GONE
+            loadDashboardUI()
 
             recyclerView.adapter = CircuitItemAdapter(
                 circuitsObject.circuits,
@@ -418,7 +421,20 @@ class CircuitDashboardFrag : Fragment() {
     private fun loadEmptyUI() {
         bind.recyclerView.visibility = View.GONE
         bind.sortChips.visibility = View.GONE
-        bind.emptyLayout.visibility = View.VISIBLE
+        bind.emptyLayout.root.visibility = View.VISIBLE
+
+        bounceFab = YoYo.with(Techniques.Bounce)
+            .duration(1000)
+            .repeat(YoYo.INFINITE)
+            .playOn(bind.addCircuit)
+    }
+
+    private fun loadDashboardUI() {
+        bind.recyclerView.visibility = View.VISIBLE
+        bind.sortChips.visibility = View.VISIBLE
+        bind.emptyLayout.root.visibility = View.GONE
+
+        bounceFab?.stop()
     }
 
     private fun createLink(position: Int): String {
