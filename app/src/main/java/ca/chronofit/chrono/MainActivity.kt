@@ -28,6 +28,7 @@ import ca.chronofit.chrono.util.objects.PreferenceManager
 import ca.chronofit.chrono.util.objects.SettingsViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.FirebaseApp
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
@@ -43,14 +44,13 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     private lateinit var frag1: StopwatchFrag
     private lateinit var frag2: CircuitDashboardFrag
     private lateinit var frag3: SettingsFrag
-    lateinit var mixpanel : MixpanelAPI;
+    lateinit var mixpanel: MixpanelAPI
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bind = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         PreferenceManager.with(this)
-
         initRemoteConfig()
 
         mixpanel = mixpanelAPI;
@@ -177,6 +177,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
 
     private fun initRemoteConfig() {
         // Configure Remote Config
+        FirebaseApp.initializeApp(this)
         remoteConfig = Firebase.remoteConfig
 
         val configSettings = remoteConfigSettings {
