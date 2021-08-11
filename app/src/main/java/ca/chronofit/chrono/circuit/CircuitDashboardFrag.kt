@@ -400,7 +400,7 @@ class CircuitDashboardFrag : Fragment() {
         bind.emptyLayout.root.visibility = View.VISIBLE
 
         bounceFab = YoYo.with(Techniques.Bounce)
-            .duration(1000)
+            .duration(1250)
             .repeat(YoYo.INFINITE)
             .playOn(bind.addCircuit)
     }
