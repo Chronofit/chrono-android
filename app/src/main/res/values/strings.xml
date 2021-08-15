@@ -29,6 +29,7 @@
     <string name="workout">Workout</string>
     <string name="get_ready">Get Ready</string>
     <string name="circuit_name">Circuit Name</string>
+    <string name="name">Name</string>
 
     <string name="lets_go">Let\'s Go!</string>
     <string name="settings">Settings</string>
@@ -133,6 +134,11 @@
     <string name="circuit_complete_subtitle">Now here\'s a completely\n useless fact to use for\n your next icebreaker!</string>
     <string name="did_you_know">Did You Know?</string>
     <string name="fact_error">Oh no! We\'re having trouble fetching a fact for you.</string>
+
+    <!--    DeepLinking constants-->
+    <string name="share_circuit_url_suffix">shareCircuit</string>
+    <string name="circuit_deeplink_url">https://www.chronofit.ca/shareCircuit?Name=\"%1$s&amp;Sets=\"%2$s&amp;Work=\"%3$s&amp;Rest=\"%4$s</string>
+    <string name="is_circuit_shared">isCircuitShared</string>
 
     <!-- String Arrays -->
     <string-array name="icon_files">

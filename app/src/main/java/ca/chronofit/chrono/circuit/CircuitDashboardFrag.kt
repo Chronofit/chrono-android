@@ -3,6 +3,7 @@ package ca.chronofit.chrono.circuit
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -33,6 +34,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.dynamiclinks.ktx.androidParameters
+import com.google.firebase.dynamiclinks.ktx.dynamicLink
+import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
@@ -135,9 +139,25 @@ class CircuitDashboardFrag : Fragment() {
         }
     }
 
+    fun startCircuitCreateActivity(name: String, sets: String, work: String, rest: String) {
+        val startIntent = Intent(requireContext(), CircuitCreateActivity::class.java)
+        startIntent.putExtra(getString(R.string.is_circuit_shared), true)
+        startIntent.putExtra(getString(R.string.circuit_name), name)
+        startIntent.putExtra(getString(R.string.sets), sets)
+        startIntent.putExtra(getString(R.string.work), work)
+        startIntent.putExtra(getString(R.string.rest), rest)
+        startActivityForResult(
+            startIntent,
+            Constants.DASH_TO_CREATE
+        )
+    }
+
+
     @Suppress("NAME_SHADOWING")
     private fun checkForReview() {
-        if ((PreferenceManager.get<Int>(Constants.NUM_COMPLETE) != null) && (PreferenceManager.get<Int>(
+        if ((PreferenceManager.get<Int>(Constants.NUM_COMPLETE) != null) && (PreferenceManager.get<Boolean>(
+                Constants.REVIEW_PROMPT_COMPLETE
+            ) != null) && (!PreferenceManager.get<Boolean>(Constants.REVIEW_PROMPT_COMPLETE)!!) && (PreferenceManager.get<Int>(
                 Constants.NUM_COMPLETE
             )!! >= remoteConfig.getString(Constants.CONFIG_REVIEW_THRESHOLD).toInt())
         ) {
@@ -161,6 +181,8 @@ class CircuitDashboardFrag : Fragment() {
                             "Thank you for the review. Your feedback is appreciated!",
                             Toast.LENGTH_SHORT
                         ).show()
+
+                        PreferenceManager.put(true, Constants.REVIEW_PROMPT_COMPLETE)
                     }
                 } else {
                     Log.e("CircuitDashFrag", "Problem launching review flow")
@@ -269,6 +291,7 @@ class CircuitDashboardFrag : Fragment() {
         }
 
         fragBinding.shareLayout.setOnClickListener {
+            val url = createLink(position)
             val props = JSONObject()
             props.put("source", "CircuitDashboardActivity")
             props.put("name", circuitsObject.circuits[position].name)
@@ -283,8 +306,9 @@ class CircuitDashboardFrag : Fragment() {
                 action = Intent.ACTION_SEND
                 putExtra(
                     Intent.EXTRA_TEXT,
-                    circuitsObject.circuits[position].shareString()
+                    "Check out my Chrono Circuit: $url"
                 )
+
                 type = "text/plain"
             }
             startActivity(Intent.createChooser(sendIntent, null))
@@ -411,5 +435,15 @@ class CircuitDashboardFrag : Fragment() {
         bind.emptyLayout.root.visibility = View.GONE
 
         bounceFab?.stop()
+    }
+
+    private fun createLink(position: Int): String {
+        val dynamicLink = Firebase.dynamicLinks.dynamicLink {
+            link = Uri.parse(circuitsObject.circuits[position].generateDeeplinkURL(requireContext()))
+            domainUriPrefix = "https://chronofit.page.link/"
+            androidParameters {
+            }
+        }
+        return dynamicLink.uri.toString()
     }
 }

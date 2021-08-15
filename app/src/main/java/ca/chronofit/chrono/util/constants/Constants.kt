@@ -21,6 +21,7 @@ object Constants {
     const val EASTER_EGG_SETTING: String = "easter_egg"
     const val EASTER_EGG_DIALOG: String = "easter_egg_dialog"
     const val SORT_PREFERENCE: String = "sort_preference"
+    const val REVIEW_PROMPT_COMPLETE: String = "review_complete"
 
     // Activity Request Codes
     const val DASH_TO_CREATE: Int = 10001
