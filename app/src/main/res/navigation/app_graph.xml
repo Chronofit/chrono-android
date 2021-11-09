@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/app_navigation"
+    app:startDestination="@id/splashFragment">
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="ca.chronofit.chrono.SplashFragment"
+        android:label="SplashFragment">
+
+        <action
+            android:id="@+id/navigate_to_dashboard"
+            app:destination="@+id/circuitDashboardFrag" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/circuitDashboardFrag"
+        android:name="ca.chronofit.chrono.circuit.CircuitDashboardFrag"
+        android:label="CircuitDashboardFrag" />
+
+</navigation>
