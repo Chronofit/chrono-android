@@ -16,11 +16,14 @@
             app:labelVisibilityMode="unlabeled"
             app:menu="@menu/menu_bottom_navigation" />
 
-        <FrameLayout
-            android:id="@+id/content"
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/main_content"
+            android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/nav_bar" />
+            android:layout_above="@+id/nav_bar"
+            app:defaultNavHost="true"
+            app:navGraph="@navigation/app_graph" />
 
     </RelativeLayout>
 

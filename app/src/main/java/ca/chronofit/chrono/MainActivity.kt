@@ -28,6 +28,7 @@ import ca.chronofit.chrono.util.objects.PreferenceManager
 import ca.chronofit.chrono.util.objects.SettingsViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.FirebaseApp
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -36,7 +37,7 @@ import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.mixpanel.android.mpmetrics.MixpanelAPI
 import org.json.JSONObject
 
-class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelectedListener {
+class MainActivity : BaseActivity() {
     private lateinit var bind: ActivityMainBinding
     private val settingsViewModel: SettingsViewModel by viewModels()
     private lateinit var remoteConfig: FirebaseRemoteConfig
@@ -52,6 +53,36 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
 
         PreferenceManager.with(this)
         initRemoteConfig()
+
+        bind.navBar.apply {
+            setOnItemSelectedListener {
+                val fragTransaction = supportFragmentManager.beginTransaction()
+                when (it.itemId) {
+                    R.id.nav_stopwatch -> {
+                        fragTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+                        fragTransaction.hide(frag2).hide(frag3).show(frag1).commitNow()
+                        return@setOnItemSelectedListener true
+                    }
+                    R.id.nav_circuit -> {
+                        if (frag3.isVisible) {
+                            fragTransaction.setCustomAnimations(
+                                R.anim.slide_in_right,
+                                R.anim.slide_out_right
+                            )
+                        } else {
+                            fragTransaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_left)
+                        }
+                        fragTransaction.hide(frag1).hide(frag3).show(frag2).commitNow()
+                        return@setOnItemSelectedListener true
+                    }
+                    else -> {
+                        fragTransaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_left)
+                        fragTransaction.hide(frag1).hide(frag2).show(frag3).commitNow()
+                        return@setOnItemSelectedListener true
+                    }
+                }
+            }
+        }
 
         mixpanel = mixpanelAPI;
 
@@ -131,35 +162,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         settingsViewModel.darkMode.observe(this, { darkMode ->
             changeDarkMode(darkMode)
         })
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        val fragTransaction = supportFragmentManager.beginTransaction()
-
-        when (item.itemId) {
-            R.id.nav_stopwatch -> {
-                fragTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-                fragTransaction.hide(frag2).hide(frag3).show(frag1).commitNow()
-                return true
-            }
-            R.id.nav_circuit -> {
-                if (frag3.isVisible) {
-                    fragTransaction.setCustomAnimations(
-                        R.anim.slide_in_right,
-                        R.anim.slide_out_right
-                    )
-                } else {
-                    fragTransaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_left)
-                }
-                fragTransaction.hide(frag1).hide(frag3).show(frag2).commitNow()
-                return true
-            }
-            else -> {
-                fragTransaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_left)
-                fragTransaction.hide(frag1).hide(frag2).show(frag3).commitNow()
-                return true
-            }
-        }
     }
 
     private fun createNotificationChannel(id: String, name: String, descriptionText: String) {
