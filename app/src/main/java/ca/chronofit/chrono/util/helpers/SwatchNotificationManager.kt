@@ -22,7 +22,7 @@ class SwatchNotificationManager(private val context: Context) {
             .getLaunchIntentForPackage(context.packageName)!!
             .setPackage(null)
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-        val openAppPendingIntent = PendingIntent.getActivity(context, 3, openAppIntent, 0)
+        val openAppPendingIntent = PendingIntent.getActivity(context, 3, openAppIntent, PendingIntent.FLAG_IMMUTABLE)
 
         val resetIntent = Intent(context, NotificationIntentService::class.java)
         resetIntent.action = StopwatchFrag.RESET
@@ -53,7 +53,7 @@ class SwatchNotificationManager(private val context: Context) {
                     context,
                     0,
                     stopIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT
+                    PendingIntent.FLAG_IMMUTABLE
                 )
             )
         } else {
@@ -64,7 +64,7 @@ class SwatchNotificationManager(private val context: Context) {
                     context,
                     0,
                     resumeIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT
+                    PendingIntent.FLAG_IMMUTABLE
                 )
             )
             builder.setStyle(
@@ -79,7 +79,7 @@ class SwatchNotificationManager(private val context: Context) {
                 context,
                 1,
                 resetIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_IMMUTABLE
             )
         )
 
