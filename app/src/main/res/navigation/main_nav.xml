@@ -6,7 +6,6 @@
 
     <fragment
         android:id="@+id/splash_fragment"
-        android:name=""
         tools:layout="@layout/activity_splash">
 
     </fragment>
@@ -15,9 +14,6 @@
         android:id="@+id/dashboard_fragment"
         android:name="ca.chronofit.chrono.circuit.CircuitDashboardFrag"
         tools:layout="@layout/fragment_circuit_dashboard">
-
-        <action
-            i
 
     </fragment>
 
