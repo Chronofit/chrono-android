@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity2">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/parent"
@@ -8,7 +10,7 @@
         android:layout_height="match_parent">
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/main_container"
+            android:id="@+id/nav_host_fragment"
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -19,8 +21,6 @@
             android:id="@+id/nav_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:itemIconTint="@drawable/nav_icon_selector"
-            app:labelVisibilityMode="selected"
             app:layout_constraintBottom_toBottomOf="parent"
             app:menu="@menu/bottom_nav" />
 

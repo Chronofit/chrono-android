@@ -11,12 +11,17 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import ca.chronofit.chrono.circuit.CircuitDashboardFrag
 import ca.chronofit.chrono.databinding.ActivityMainBinding
 import ca.chronofit.chrono.databinding.DialogAlertBinding
@@ -26,7 +31,6 @@ import ca.chronofit.chrono.util.BaseActivity
 import ca.chronofit.chrono.util.constants.Constants
 import ca.chronofit.chrono.util.objects.PreferenceManager
 import ca.chronofit.chrono.util.objects.SettingsViewModel
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.FirebaseApp
@@ -37,7 +41,7 @@ import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.mixpanel.android.mpmetrics.MixpanelAPI
 import org.json.JSONObject
 
-class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelectedListener {
+class MainActivity : BaseActivity() {
     private lateinit var bind: ActivityMainBinding
     private val settingsViewModel: SettingsViewModel by viewModels()
     private lateinit var remoteConfig: FirebaseRemoteConfig
@@ -47,14 +51,28 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     private lateinit var frag3: SettingsFrag
     lateinit var mixpanel: MixpanelAPI
 
+    private lateinit var navController: NavController
+    private lateinit var appBarConfiguration: AppBarConfiguration
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bind = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
+
+        bind.navBar.setupWithNavController(navController)
+
+        // Setup the ActionBar with navController and 3 top level destinations
+        appBarConfiguration = AppBarConfiguration(
+            setOf(R.id.stopwatchScreen, R.id.dashboardScreen,  R.id.settingsScreen)
+        )
+        setupActionBarWithNavController(navController, appBarConfiguration)
+
         PreferenceManager.with(this)
         initRemoteConfig()
 
-        mixpanel = mixpanelAPI;
+        mixpanel = mixpanelAPI
 
         val props = JSONObject()
         props.put("source", "MainActivity")
@@ -62,35 +80,66 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
 
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        if (savedInstanceState == null) {
-            val fragTransaction = supportFragmentManager.beginTransaction()
+        // New nav stuff
 
-            frag1 = StopwatchFrag()
-            frag2 = CircuitDashboardFrag()
-            frag3 = SettingsFrag()
-            fragTransaction.add(R.id.content, frag1, Constants.STOPWATCH_FRAG)
-                .add(R.id.content, frag2, Constants.CIRCUIT_FRAG)
-                .add(R.id.content, frag3, Constants.SETTINGS_FRAG)
-                .commitAllowingStateLoss()
+//        bind.navBar.apply {
+//            setOnItemSelectedListener { item ->
+//                val fragTransaction = supportFragmentManager.beginTransaction()
+//
+//                when (item.itemId) {
+//                    R.id.nav_stopwatch -> {
+//                        fragTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+//                        fragTransaction.hide(frag2).hide(frag3).show(frag1).commitNow()
+//                        return@setOnItemSelectedListener true
+//                    }
+//                    R.id.nav_circuit -> {
+//                        if (frag3.isVisible) {
+//                            fragTransaction.setCustomAnimations(
+//                                R.anim.slide_in_right,
+//                                R.anim.slide_out_right
+//                            )
+//                        } else {
+//                            fragTransaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_left)
+//                        }
+//                        fragTransaction.hide(frag1).hide(frag3).show(frag2).commitNow()
+//                        return@setOnItemSelectedListener true
+//                    }
+//                    else -> {
+//                        fragTransaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_left)
+//                        fragTransaction.hide(frag1).hide(frag2).show(frag3).commitNow()
+//                        return@setOnItemSelectedListener true
+//                    }
+//                }
+//            }
+//        }
 
-            bind.navBar.setOnNavigationItemSelectedListener(this)
-            bind.navBar.selectedItemId = R.id.nav_circuit
-
-        } else {
-            frag2 = supportFragmentManager.getFragment(
-                savedInstanceState,
-                Constants.CIRCUIT_FRAG
-            ) as CircuitDashboardFrag
-            frag1 = supportFragmentManager.getFragment(
-                savedInstanceState,
-                Constants.STOPWATCH_FRAG
-            ) as StopwatchFrag
-            frag3 = supportFragmentManager.getFragment(
-                savedInstanceState,
-                Constants.SETTINGS_FRAG
-            ) as SettingsFrag
-            bind.navBar.setOnNavigationItemSelectedListener(this)
-        }
+//        if (savedInstanceState == null) {
+//            val fragTransaction = supportFragmentManager.beginTransaction()
+//
+//            frag1 = StopwatchFrag()
+//            frag2 = CircuitDashboardFrag()
+//            frag3 = SettingsFrag()
+//            fragTransaction.add(R.id.content, frag1, Constants.STOPWATCH_FRAG)
+//                .add(R.id.content, frag2, Constants.CIRCUIT_FRAG)
+//                .add(R.id.content, frag3, Constants.SETTINGS_FRAG)
+//                .commitAllowingStateLoss()
+//
+//            bind.navBar.selectedItemId = R.id.nav_circuit
+//
+//        } else {
+//            frag2 = supportFragmentManager.getFragment(
+//                savedInstanceState,
+//                Constants.CIRCUIT_FRAG
+//            ) as CircuitDashboardFrag
+//            frag1 = supportFragmentManager.getFragment(
+//                savedInstanceState,
+//                Constants.STOPWATCH_FRAG
+//            ) as StopwatchFrag
+//            frag3 = supportFragmentManager.getFragment(
+//                savedInstanceState,
+//                Constants.SETTINGS_FRAG
+//            ) as SettingsFrag
+//        }
 
         // Create Notification Channels
         createNotificationChannel(
@@ -133,35 +182,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         settingsViewModel.darkMode.observe(this, { darkMode ->
             changeDarkMode(darkMode)
         })
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        val fragTransaction = supportFragmentManager.beginTransaction()
-
-        when (item.itemId) {
-            R.id.nav_stopwatch -> {
-                fragTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-                fragTransaction.hide(frag2).hide(frag3).show(frag1).commitNow()
-                return true
-            }
-            R.id.nav_circuit -> {
-                if (frag3.isVisible) {
-                    fragTransaction.setCustomAnimations(
-                        R.anim.slide_in_right,
-                        R.anim.slide_out_right
-                    )
-                } else {
-                    fragTransaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_left)
-                }
-                fragTransaction.hide(frag1).hide(frag3).show(frag2).commitNow()
-                return true
-            }
-            else -> {
-                fragTransaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_left)
-                fragTransaction.hide(frag1).hide(frag2).show(frag3).commitNow()
-                return true
-            }
-        }
     }
 
     private fun createNotificationChannel(id: String, name: String, descriptionText: String) {
@@ -305,18 +325,22 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             }
     }
 
-    override fun onSaveInstanceState(state: Bundle) {
-        super.onSaveInstanceState(state)
-        supportFragmentManager.putFragment(state, Constants.STOPWATCH_FRAG, frag1)
-        supportFragmentManager.putFragment(state, Constants.CIRCUIT_FRAG, frag2)
-        supportFragmentManager.putFragment(state, Constants.SETTINGS_FRAG, frag3)
+//    override fun onSaveInstanceState(state: Bundle) {
+//        super.onSaveInstanceState(state)
+//        supportFragmentManager.putFragment(state, Constants.STOPWATCH_FRAG, frag1)
+//        supportFragmentManager.putFragment(state, Constants.CIRCUIT_FRAG, frag2)
+//        supportFragmentManager.putFragment(state, Constants.SETTINGS_FRAG, frag3)
+//    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp(appBarConfiguration)
     }
 
-    override fun onBackPressed() {
-        if (frag2.isHidden) {
-            bind.navBar.selectedItemId = R.id.nav_circuit
-        } else {
-            super.onBackPressed()
-        }
-    }
+//    override fun onBackPressed() {
+//        if (frag2.isHidden) {
+//            bind.navBar.selectedItemId = R.id.nav_circuit
+//        } else {
+//            super.onBackPressed()
+//        }
+//    }
 }

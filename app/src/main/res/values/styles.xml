@@ -66,4 +66,9 @@
         <item name="chipBackgroundColor">@color/circuit_sort_chips</item>
     </style>
 
+     Splash Screen
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+
+    </style>
+
 </resources>
