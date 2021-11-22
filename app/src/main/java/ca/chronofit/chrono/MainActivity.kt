@@ -52,7 +52,6 @@ class MainActivity : BaseActivity() {
     lateinit var mixpanel: MixpanelAPI
 
     private lateinit var navController: NavController
-    private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,12 +61,6 @@ class MainActivity : BaseActivity() {
         navController = navHostFragment.navController
 
         bind.navBar.setupWithNavController(navController)
-
-        // Setup the ActionBar with navController and 3 top level destinations
-        appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.stopwatchScreen, R.id.dashboardScreen,  R.id.settingsScreen)
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
 
         PreferenceManager.with(this)
         initRemoteConfig()
@@ -331,11 +324,6 @@ class MainActivity : BaseActivity() {
 //        supportFragmentManager.putFragment(state, Constants.CIRCUIT_FRAG, frag2)
 //        supportFragmentManager.putFragment(state, Constants.SETTINGS_FRAG, frag3)
 //    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(appBarConfiguration)
-    }
-
 //    override fun onBackPressed() {
 //        if (frag2.isHidden) {
 //            bind.navBar.selectedItemId = R.id.nav_circuit
