@@ -7,14 +7,10 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
-        <!-- Status bar color. -->
-        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
-        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
-
-        <!-- Other Styles -->
         <item name="android:fontFamily">@font/nunito_regular</item>
         <item name="bottomSheetDialogTheme">@style/CustomBottomSheetDialog</item>
         <item name="android:textViewStyle">@style/MainText</item>
+
     </style>
 
     <style name="MainText" parent="Widget.MaterialComponents.TextView">
@@ -64,11 +60,6 @@
 
     <style name="CustomChip" parent="@style/Widget.MaterialComponents.Chip.Choice">
         <item name="chipBackgroundColor">@color/circuit_sort_chips</item>
-    </style>
-
-     Splash Screen
-    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-
     </style>
 
 </resources>
