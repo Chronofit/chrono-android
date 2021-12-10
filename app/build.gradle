@@ -39,6 +39,7 @@ def daggerVersion = '2.13'
 def glideVersion = '4.8.0'
 def mockitoVersion = '2.11.0'
 def rxJavaVersion = '2.0.1'
+def splashScreen = '1.0.0-alpha01'
 
 dependencies {
     // Tutorial Dependencies
@@ -58,6 +59,7 @@ dependencies {
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     implementation "com.android.support:appcompat-v7:$supportVersion"
     implementation "android.arch.lifecycle:extensions:$lifeCycleExtensionsVersion"
+    implementation "androidx.core:core-splashscreen:$splashScreen"
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation "org.mockito:mockito-inline:$mockitoVersion"
@@ -97,6 +99,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-messaging-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
     implementation 'com.google.firebase:firebase-dynamic-links-ktx'
 
     // Design

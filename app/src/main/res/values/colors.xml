@@ -4,6 +4,7 @@
     <color name="colorPrimary">#E7E6E6</color>
     <color name="colorPrimaryDark">#7A7676</color>
     <color name="colorAccent">#4F60F8</color>
+    <color name="primaryPurple">#282B4C</color>
 
     <!-- Light Mode Colors -->
     <color name="lightText">#313131</color>
