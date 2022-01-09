@@ -85,7 +85,7 @@ class CircuitCreateActivity : BaseActivity() {
         bind.saveButton.setOnClickListener {
             if (validateInputs()) {
                 FirebaseAnalytics.getInstance(this).logEvent(Events.CREATE_COMPLETE, Bundle())
-                saveCircuit()
+//                saveCircuit()
             }
         }
 
@@ -146,45 +146,45 @@ class CircuitCreateActivity : BaseActivity() {
         }
     }
 
-    private fun saveCircuit() {
-        val circuit = CircuitObject()
-        circuit.name = bind.circuitName.text.toString()
-        circuit.sets = bind.setNum.text.toString().toInt()
-        circuit.work = bind.setWork.text.toString().toInt()
-        circuit.rest = bind.setRest.text.toString().toInt()
-        circuit.date = Calendar.getInstance().time
-        circuit.iconId = selectedIcon
-
-        // Save circuit in Shared Preferences
-        val circuits: CircuitsObject? = PreferenceManager.get<CircuitsObject>(Constants.CIRCUITS)
-
-        // Check if the user is editing a circuit
-        if (isEdit) {
-            if (editPosition != -1) {
-                circuits!!.circuits!![editPosition] = circuit
-            } else {
-                setResult(Activity.RESULT_CANCELED)
-                Toast.makeText(this, "Error editing and saving circuit.", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-        } else {
-            circuits!!.circuits!!.add(circuit)
-        }
-        PreferenceManager.put(circuits, Constants.CIRCUITS)
-        setResult(Activity.RESULT_OK)
-
-        val props = JSONObject()
-        props.put("source", "CircuitCreateActivity")
-        props.put("name", circuit.name)
-        props.put("sets", circuit.sets)
-        props.put("work", circuit.work)
-        props.put("rest", circuit.rest)
-        props.put("iconID", circuit.iconId)
-
-        mixpanelAPI.track("Circuit created", props)
-
-        finish()
-    }
+//    private fun saveCircuit() {
+//        val circuit = CircuitObject()
+//        circuit.name = bind.circuitName.text.toString()
+//        circuit.sets = bind.setNum.text.toString().toInt()
+//        circuit.work = bind.setWork.text.toString().toInt()
+//        circuit.rest = bind.setRest.text.toString().toInt()
+//        circuit.date = Calendar.getInstance().time
+//        circuit.iconId = selectedIcon
+//
+//        // Save circuit in Shared Preferences
+//        val circuits: CircuitsObject? = PreferenceManager.get<CircuitsObject>(Constants.CIRCUITS)
+//
+//        // Check if the user is editing a circuit
+//        if (isEdit) {
+//            if (editPosition != -1) {
+//                circuits!!.circuits!![editPosition] = circuit
+//            } else {
+//                setResult(Activity.RESULT_CANCELED)
+//                Toast.makeText(this, "Error editing and saving circuit.", Toast.LENGTH_SHORT).show()
+//                finish()
+//            }
+//        } else {
+//            circuits!!.circuits!!.add(circuit)
+//        }
+//        PreferenceManager.put(circuits, Constants.CIRCUITS)
+//        setResult(Activity.RESULT_OK)
+//
+//        val props = JSONObject()
+//        props.put("source", "CircuitCreateActivity")
+//        props.put("name", circuit.name)
+//        props.put("sets", circuit.sets)
+//        props.put("work", circuit.work)
+//        props.put("rest", circuit.rest)
+//        props.put("iconID", circuit.iconId)
+//
+//        mixpanelAPI.track("Circuit created", props)
+//
+//        finish()
+//    }
 
     private fun loadCircuitInfo(position: Int) {
         if (position != -1) {

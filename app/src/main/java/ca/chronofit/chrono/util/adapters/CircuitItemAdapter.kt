@@ -50,7 +50,7 @@ class CircuitItemAdapter(
             val icons: TypedArray = context.resources.obtainTypedArray(R.array.icon_files)
             icon.setImageResource(
                 context.resources.getIdentifier(
-                    icons.getString(circuit.iconId!!),
+                    icons.getString(circuit.iconId),
                     "drawable",
                     context.packageName
                 )

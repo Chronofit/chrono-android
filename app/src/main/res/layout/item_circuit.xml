@@ -11,6 +11,7 @@
         android:layout_marginBottom="@dimen/xs_medium_element_padding"
         android:clickable="true"
         android:focusable="true"
+        app:cardBackgroundColor="@color/plum"
         app:cardCornerRadius="@dimen/xs_medium_element_padding"
         app:cardElevation="@dimen/tiny_element_padding">
 
@@ -24,10 +25,10 @@
                 android:layout_width="@dimen/circuit_icon_display"
                 android:layout_height="@dimen/circuit_icon_display"
                 android:contentDescription="@string/todo"
+                android:src="@drawable/ic_arm"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:src="@drawable/ic_dumbbell" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/more_menu"
@@ -37,7 +38,8 @@
                 android:padding="@dimen/tiny_element_padding"
                 android:src="@drawable/ic_more"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
 
             <LinearLayout
                 android:id="@+id/header_layout"
@@ -48,7 +50,7 @@
                 app:layout_constraintStart_toEndOf="@id/circuit_icon"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/circuit_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -57,16 +59,18 @@
                     android:ellipsize="end"
                     android:lines="1"
                     android:maxLines="1"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/xl_medium_text"
                     tools:text="Title of Circuit" />
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/num_sets"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/custom_padding_4"
                     android:alpha="0.6"
-                    tools:text="6 sets" />
+                    android:textColor="@color/white"
+                    tools:text="2 sets" />
 
             </LinearLayout>
 
@@ -86,13 +90,15 @@
                     android:layout_width="@dimen/medium_element_padding"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/todo"
-                    android:src="@drawable/ic_run" />
+                    android:src="@drawable/ic_run"
+                    app:tint="@color/white" />
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/work_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:textColor="@color/white"
                     tools:text="Work: 60s" />
 
             </LinearLayout>
@@ -113,13 +119,15 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/tiny_element_padding"
                     android:contentDescription="@string/todo"
-                    android:src="@drawable/ic_restore" />
+                    android:src="@drawable/ic_restore"
+                    app:tint="@color/white" />
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/rest_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:textColor="@color/white"
                     tools:text="Rest: 60s" />
 
             </LinearLayout>

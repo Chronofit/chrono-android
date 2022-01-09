@@ -42,7 +42,7 @@
     <color name="velvet">#282B4C</color>
     <color name="plum">#363765</color>
     <color name="lavender">#8489C5</color>
-    <color name="app_icon">#438489C5</color>
+    <color name="app_icon">#CC8489C5</color>
 
     <!-- Nav Selectors -->
     <color name="select_grey">#DFE0DF</color>

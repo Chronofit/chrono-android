@@ -80,11 +80,11 @@ class CircuitDashboardFrag : Fragment() {
                         PreferenceManager.put(Constants.ALPHABETICAL, Constants.SORT_PREFERENCE)
                         animateChange()
                     }
-                    R.id.chip_date -> {
-                        circuitsObject.circuits.sortByDescending { circuit -> circuit.date }
-                        PreferenceManager.put(Constants.RECENTLY_ADDED, Constants.SORT_PREFERENCE)
-                        animateChange()
-                    }
+//                    R.id.chip_date -> {
+//                        circuitsObject.circuits.sortByDescending { circuit -> circuit.date }
+//                        PreferenceManager.put(Constants.RECENTLY_ADDED, Constants.SORT_PREFERENCE)
+//                        animateChange()
+//                    }
                     R.id.chip_popular -> {
                         circuitsObject.circuits.sortByDescending { circuit -> circuit.count }
                         PreferenceManager.put(Constants.POPULARITY, Constants.SORT_PREFERENCE)
@@ -202,11 +202,11 @@ class CircuitDashboardFrag : Fragment() {
 
         val index = circuitsObject.circuits.indexOf(circuit)
         val currCount = circuitsObject.circuits[index].count
-        if (currCount != null) {
-            circuitsObject.circuits[index].count = currCount + 1
-        } else {
-            circuitsObject.circuits[index].count = 0
-        }
+//        if (currCount != null) {
+//            circuitsObject.circuits[index].count = currCount + 1
+//        } else {
+//            circuitsObject.circuits[index].count = 0
+//        }
 
         PreferenceManager.put(circuitsObject, Constants.CIRCUITS)
         recyclerView.adapter?.notifyDataSetChanged()

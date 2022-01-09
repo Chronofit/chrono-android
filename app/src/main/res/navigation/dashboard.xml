@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/dashboardScreen"
-        android:name="ca.chronofit.chrono.DashFragment"
+        android:name="ca.chronofit.chrono.DashboardFragment"
         android:label="CircuitDashboardFrag"
-        tools:layout="@layout/fragment_dash">
+        tools:layout="@layout/fragment_dashboard">
 
         <action
             android:id="@+id/action_circuitDashboardFrag2_to_createCircuitFragment"
