@@ -1,6 +1,7 @@
 package ca.chronofit.chrono
 
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import ca.chronofit.chrono.databinding.FragmentDashboardBinding
@@ -23,6 +24,8 @@ class DashboardFragment : AbstractFragment() {
             }
             observeViewModel()
         }
+
+        requireActivity().window!!.statusBarColor = ContextCompat.getColor(requireContext(), R.color.velvet)
     }
 
     private fun observeViewModel() {
